@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}New User{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <div class="login-panel panel panel-default" style="position: fixed; top: 50%; left:50%; transform: translate(-50%, -50%); ">
+            <div class="panel-heading">
+                <h3 class="panel-title">Sign Up</h3>
+            </div>
+            <div class="panel-body">
+                {% if form.errors %}
+                    <p class="errortext">Your username and password didn't match. Please try again.</p>
+                {% endif %}
+                
+                <form id="launch_form" action="{% url 'create_user' %}" method="post">
+                    {% csrf_token %}
+                    </br>
+                    <label for="first">First*</label>
+                    <input class="form-control" type="text" id="first" name="first">
+                    <label for="last">Last*</label>
+                    <input class="form-control" type="text" id="last"  name="last">
+                    </br>
+                    <label for="email">Email*</label>
+                    <input class="form-control" id="email" name="email">
+                    </br>
+                    <label for="password">Password*</label>
+                    <input class="form-control" rows="3" id="password" name="password"></input>
+                    </br>
+                    <input class="btn btn-default" id="submit"  type="submit" value="Submit"/>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+
+    </div>
+</div>
+
+{% endblock %}
