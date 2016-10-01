@@ -17,4 +17,6 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^', include('marketplace.urls')),
+    url(r'^marketplace/', include('marketplace.urls', namespace="marketplace")),
 ]
