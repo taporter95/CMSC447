@@ -22,6 +22,7 @@ import os
 def login_user(request):
 	return render(request, 'registration/login.html')
 
+@login_required(login_url='login_user')
 def logout_user(request):
 	logout(request)
 	return HttpResponseRedirect('/')
@@ -40,12 +41,19 @@ def new_user(request):
 	return render(request, 'registration/new_user.html')
 
 def create_user(request):
+	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
+		pass
+	else:
+		return render(request, 'registration/login.html')
+
 	new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
 	new_user.last_name = request.POST['last']
 	new_user.save()
-	return HttpResponseRedirect(reverse('home', args=(new_user.id, )))
+	user = authenticate(username=request.POST['email'], password=request.POST['password'])
+	login(request, user)
+	return HttpResponseRedirect(reverse('home', args=(user.id, )))
 
-@login_required()
+@login_required(login_url='login_user')
 def home(request, user_id):
 	user = get_object_or_404(User, pk=user_id)
 	return render(request, 'marketplace/home.html')
