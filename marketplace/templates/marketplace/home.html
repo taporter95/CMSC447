@@ -1,7 +1,135 @@
 {% extends "base2.html" %}
 
 {% block content %}
-	<div class="col-md-4 col-md-offset-4 well">
+	<div class="col-md-8 well">     
+  		{% for post in posts %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span style="float:right;">
+                    <a href="{% url 'view_post' post.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                    <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
+                </span>
 
+                <h3 class="panel-title">{{ post.subject }} - ${{ post.cost }}</h3>
+            </div>
+            <div class="panel-body">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" style="height: 75px; width: 75px" src="{{ post.image.url }}">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <p>{{ post.description }}</p>
+                </div>
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+    </div>
+	</div> 
+	
+	<div class="col-md-4">
+		<button type="button" class="btn btn-primary col-md-offset-4" data-toggle="modal" data-target="#myModal">
+        New Listing 
+      	</button>
+		<form action="#" method="post">
+			</br>
+			</br>
+			<div class="">
+    			<div class="input-group">
+     				<span class="input-group-btn">
+        				<button class="btn btn-default" type="button">Go!</button>
+      				</span>
+      				<input type="text" class="form-control" placeholder="Search">
+    			</div><!-- /input-group -->
+  			</div><!-- /.col-lg-6 -->
+			</br>
+			<div class="checkbox">
+    			<label>
+      				<input type="checkbox"> Only Free
+    			</label>
+  			</div>
+  			</br>
+			<label for="select_time">Price less than</label>
+			<select class="form-control" id="select_time" name="select_time">
+				<option value="1">$100</option>
+			</select>
+			</br>
+			<label> Looking For </label>
+			<div class="checkbox">
+		    <label>
+		      <input type="checkbox"> Goods
+		    </label>
+		  	</div>
+		  	<div class="checkbox">
+		    	<label>
+		      		<input type="checkbox"> Services
+		    	</label>
+		  	</div>
+			</br>
+	
+		</form>
 	</div>
+
+	<!--modal-->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Create a new listing</h4>
+        </div>
+          <div class="modal-body">
+
+              <div>
+
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active"><a href="#date" aria-controls="date" role="tab" data-toggle="tab">Good</a></li>
+                  <li role="presentation"><a href="#range" aria-controls="range" role="tab" data-toggle="tab">Service</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                  <div role="tabpanel" class="tab-pane active" id="date">
+                    </br>
+                    <!-- form for search by date -->
+                    <form id="post_form" action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
+          						{% csrf_token %}
+          						</br>
+          						<label for="subject">Title</label>
+          						<input class="form-control" type="text" id="subject" name="subject">
+          						</br>
+          						</br>
+          						<label for="description">Description</label>
+          						<textarea class="form-control" rows="3" id="description" name="description"></textarea>
+          						</br>
+                      <label for="image">Image</label>
+                      <input class="form-control" type="file" name="image">
+                      </br>
+          						<label for="cost">Price</label>
+          						<input class="form-control" type="text" id="cost" name="cost">
+          						</br>
+                      <label for="barter">Accept goods/services</label>
+                      <select class="form-control" id="barter" name="barter">
+                      <option value="1">None</option>
+                      </select>
+          						<input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>
+          					      {% if messages %}
+                                      {% for message in messages %}
+                                          <h5{% if message.tags %} class="{{ message.tags }}"{% endif %}><font color="red">{{ message }}</font></h5>
+                                      {% endfor %}
+                                    {% endif %}
+					          </form>
+                  </div>
+                </div>
+              </div>
+          </div>
+          <!--<div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>-->
+      </div> <!-- end modal content -->
+    </div> <!-- end modal-dialog -->
+  </div> <!-- end modal -->
 {% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base2.html" %}
+
+{% block content %}
+
+<div class="col-md-6">
+	<div class="panel-body">
+      <div class="media">
+        <div class="media-left">
+          <a href="#">
+            <img class="media-object" style="height: 100px; width: 100px" src="{{ post.image.url }}" alt="...">
+          </a>
+        </div>
+        <div class="media-body">
+        	<h4>{{ post.subject }}</h4>
+        	<p>{{ post.description }}</p>
+        	<p>${{ post.cost }}</p>
+        </div>
+      </div>     	
+    </div>
+	</br>
+	<form id="post_form" action="#" method="post">
+		{% csrf_token %}
+  		</br>
+  		<label for="payment">Choose Payment Method</label>
+  		</br>
+  		<input type="radio" name="payment" value="Cash on delivery" checked> Cash on Delivery
+  		</br>
+  		<input type="radio" name="payment" value="Service A"> Service A
+  		</br>
+  		<input type="radio" name="payment" value="Service B"> Service B
+		</form>
+		</br>
+		<label for="notes">Notes</label>
+		<textarea class="form-control" rows="3" id="notes" name="notes"></textarea>
+		</br>
+		<input class="btn btn-primary" id="submit_button"  type="submit" value="Buy"/>     
+	</form>
+
+
+	<a href="{% url 'home' %}"><button class="btn btn-default">cancel</button></a>
+</div>
+
+    
+{% endblock %}

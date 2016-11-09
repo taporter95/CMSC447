@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 #, (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
+from .models import Post
 import datetime
 import calendar
 import random
@@ -33,7 +34,8 @@ def authenticate_user(request):
 	user = authenticate(username=username, password=password)
 	if user is not None:
 		login(request, user)
-		return HttpResponseRedirect(reverse('home', args=(user.id, )))
+		request.session['user_id'] = user.id
+		return HttpResponseRedirect(reverse('home'))
 	else:
 		return render(request, 'registration/login.html')
 
@@ -51,9 +53,63 @@ def create_user(request):
 	new_user.save()
 	user = authenticate(username=request.POST['email'], password=request.POST['password'])
 	login(request, user)
-	return HttpResponseRedirect(reverse('home', args=(user.id, )))
+	return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
-def home(request, user_id):
-	user = get_object_or_404(User, pk=user_id)
-	return render(request, 'marketplace/home.html')
+def home(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	posts = Post.objects.all()
+	context = {'user': user, 'posts': posts}
+	return render(request, 'marketplace/home.html', context)
+
+@login_required(login_url='login_user')
+def profile(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	posts = Post.objects.filter(user=user)
+	edit = request.GET.get('edit');
+	context = {'user': user, 'posts': posts, 'edit': edit}
+	return render(request, 'marketplace/profile.html', context)
+	
+
+@login_required(login_url='login_user')
+def create_post(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	new_post = Post(user = user, subject = request.POST['subject'], description = request.POST['description'], cost = float(request.POST['cost']), creation_date = timezone.now())
+	new_post.image = request.FILES['image']
+	new_post.save()
+	return HttpResponseRedirect(reverse('home'))
+
+@login_required(login_url='login_user')
+def view_post(request, post_id):
+	post = get_object_or_404(Post, pk=post_id)
+	seller = post.user
+	context = {'post': post, 'seller': seller}
+	return render(request, 'marketplace/view_post.html', context)
+
+@login_required(login_url='login_user')
+def update_post(request, post_id):
+	post = get_object_or_404(Post, pk=post_id)
+	post.subject = request.POST['subject']
+	post.description = request.POST['description']
+	post.cost = float(request.POST['cost'])
+	post.save()
+	return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
+
+@login_required(login_url='login_user')
+def delete_post(request, post_id):
+	post = get_object_or_404(Post, pk=post_id)
+	post.delete()
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	posts = Post.objects.filter(user=user)
+	context = {'user': user, 'posts':posts}
+	return render(request, 'marketplace/profile.html', context)
+
+@login_required(login_url='login_user')
+def checkout(request, post_id):
+	post = get_object_or_404(Post, pk=post_id)
+	context = {'post': post}
+	return render(request, 'marketplace/checkout.html', context)
+
+@login_required(login_url='login_user')
+def buy(request, post_id):
+	return render(request, 'marketplace/checkout.html')
