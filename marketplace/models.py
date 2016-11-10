@@ -14,4 +14,5 @@ class Post(models.Model):
 	description = models.CharField(max_length=200)
 	cost = models.FloatField(default=0)
 	image = models.FileField(null=True, blank=True)
+	post_type = models.CharField(max_length=20)
 	creation_date = models.DateTimeField(db_index=True)

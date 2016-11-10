@@ -46,7 +46,12 @@ def create_user(request):
 	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
 		pass
 	else:
-		return render(request, 'registration/login.html')
+		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
+		return HttpResponseRedirect(reverse('new_user'))
+
+	if request.POST['password'] != request.POST['repassword']:
+		messages.add_message(request, messages.ERROR, 'Passwords do not match')
+		return HttpResponseRedirect(reverse('new_user'))
 
 	new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
 	new_user.last_name = request.POST['last']
@@ -58,24 +63,75 @@ def create_user(request):
 @login_required(login_url='login_user')
 def home(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
-	posts = Post.objects.all()
-	context = {'user': user, 'posts': posts}
+	
+	try:
+		posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=float(request.POST['limit']))
+	except:
+		posts = Post.objects.all()
+
+	post_paginator = Paginator(posts, 5)
+
+	page = request.GET.get('page')
+
+	try:
+		post_page = post_paginator.page(page)
+	except PageNotAnInteger:
+		post_page = post_paginator.page(1)
+	except EmptyPage:
+		post_page = post_paginator.page(post_paginator.num_pages)
+
+	context = {'user': user, 'post_page': post_page, 'posts': posts}
 	return render(request, 'marketplace/home.html', context)
+
+#@login_required(login_url='login_user')
+#def home_aux
 
 @login_required(login_url='login_user')
 def profile(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	posts = Post.objects.filter(user=user)
+	
+	post_paginator = Paginator(posts, 5)
+	page = request.GET.get('page')
+	
+	try:
+		post_page = post_paginator.page(page)
+	except PageNotAnInteger:
+		post_page = post_paginator.page(1)
+	except EmptyPage:
+		post_page = post_paginator.page(post_paginator.num_pages)
+	
 	edit = request.GET.get('edit');
-	context = {'user': user, 'posts': posts, 'edit': edit}
+	context = {'user': user, 'post_page': post_page, 'posts': posts, 'edit': edit}
 	return render(request, 'marketplace/profile.html', context)
 	
 
 @login_required(login_url='login_user')
 def create_post(request):
+	flag = 0;
 	user = get_object_or_404(User, pk=request.session['user_id'])
-	new_post = Post(user = user, subject = request.POST['subject'], description = request.POST['description'], cost = float(request.POST['cost']), creation_date = timezone.now())
-	new_post.image = request.FILES['image']
+	new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], creation_date = timezone.now())
+	
+	if len(request.POST['subject']) == 0:
+		flag = 1;
+		messages.add_message(request, messages.ERROR, 'Post Failed: Subject is a required field')
+	else:
+		new_post.subject = request.POST['subject']
+
+	try:
+		new_post.cost = float(request.POST['cost'])
+	except:
+		flag = 1;
+		messages.add_message(request, messages.ERROR, 'Post Failed: Invalid price entry')
+
+	if flag:
+		HttpResponseRedirect(reverse('home'))
+
+	try:
+		new_post.image = request.FILES['image']
+	except:
+		pass
+
 	new_post.save()
 	return HttpResponseRedirect(reverse('home'))
 
