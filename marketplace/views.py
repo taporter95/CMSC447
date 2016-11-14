@@ -9,6 +9,7 @@ from django.utils.dateparse import parse_datetime
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import *
 #, (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
 from .models import Post
@@ -53,13 +54,21 @@ def create_user(request):
 		messages.add_message(request, messages.ERROR, 'Passwords do not match')
 		return HttpResponseRedirect(reverse('new_user'))
 
-	new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
-	new_user.last_name = request.POST['last']
-	new_user.save()
-	user = authenticate(username=request.POST['email'], password=request.POST['password'])
-	login(request, user)
-	request.session['user_id'] = user.id
-	return HttpResponseRedirect(reverse('home'))
+	try: 
+		User.objects.get(username=request.POST['email'])
+	except ObjectDoesNotExist:
+		new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
+		new_user.last_name = request.POST['last']
+
+
+	
+		new_user.save()
+		user = authenticate(username=request.POST['email'], password=request.POST['password'])
+		login(request, user)
+		request.session['user_id'] = user.id
+		return HttpResponseRedirect(reverse('home'))
+	messages.add_message(request, messages.ERROR, 'User is already registered for this email')
+	return HttpResponseRedirect(reverse('new_user'))
 
 @login_required(login_url='login_user')
 def home(request):
