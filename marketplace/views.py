@@ -58,6 +58,7 @@ def create_user(request):
 	new_user.save()
 	user = authenticate(username=request.POST['email'], password=request.POST['password'])
 	login(request, user)
+	request.session['user_id'] = user.id
 	return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
