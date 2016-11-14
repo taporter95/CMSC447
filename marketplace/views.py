@@ -49,6 +49,12 @@ def create_user(request):
 	else:
 		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
 		return HttpResponseRedirect(reverse('new_user'))
+	#if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbc_id']):
+	#	pass
+	#else:
+	#	messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
+	#	return HttpResponseRedirect(reverse('new_user'))
+		
 
 	if request.POST['password'] != request.POST['repassword']:
 		messages.add_message(request, messages.ERROR, 'Passwords do not match')
