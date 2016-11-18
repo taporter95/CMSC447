@@ -21,3 +21,16 @@ class Post(models.Model):
 class UserModel(models.Model):
 	user = models.OneToOneField(User)
 	umbcid = models.CharField(max_length=7)
+	rating = models.PositiveSmallIntegerField()
+	
+	def updateRating(self, rating):
+		if rating < 5 or rating < 0:
+			return -1
+		else:
+			self.rating += rating
+			self.rating /= 2
+	def __str__(self):
+		return "Email: " + str(self.user.username) + \
+				"\nPassword: " + str(self.user.password) +\
+				"\numbcid: " + str(self.umbcid) + "\nCurrent Rating: "+\
+				 str(int(self.rating)) 

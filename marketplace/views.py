@@ -13,6 +13,7 @@ from django.core.exceptions import *
 #, (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
 from .models import Post
+from .models import UserModel
 import datetime
 import calendar
 import random
@@ -43,17 +44,18 @@ def authenticate_user(request):
 def new_user(request):
 	return render(request, 'registration/new_user.html')
 
+#TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
 def create_user(request):
 	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
 		pass
 	else:
 		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
 		return HttpResponseRedirect(reverse('new_user'))
-	#if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbc_id']):
-	#	pass
-	#else:
-	#	messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
-	#	return HttpResponseRedirect(reverse('new_user'))
+	if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid']):
+		pass
+	else:
+		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
+		return HttpResponseRedirect(reverse('new_user'))
 		
 
 	if request.POST['password'] != request.POST['repassword']:
@@ -62,13 +64,13 @@ def create_user(request):
 
 	try: 
 		User.objects.get(username=request.POST['email'])
-	except ObjectDoesNotExist:
+	except:# ObjectDoesNotExist:
 		new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
-		new_user.last_name = request.POST['last']
-
-
-	
+		new_user.last_name = request.POST['last']	
 		new_user.save()
+		really_new_user = UserModel(user=new_user, umbcid=request.POST['umbcid'], rating=5)
+		really_new_user.save()
+		
 		user = authenticate(username=request.POST['email'], password=request.POST['password'])
 		login(request, user)
 		request.session['user_id'] = user.id
