@@ -41,17 +41,18 @@ def authenticate_user(request):
 	else:
 		return render(request, 'registration/login.html')
 
+#TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
 def new_user(request):
 	return render(request, 'registration/new_user.html')
 
-#TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
 def create_user(request):
 	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
 		pass
 	else:
 		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
 		return HttpResponseRedirect(reverse('new_user'))
-	if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid']):
+	
+	if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
 		pass
 	else:
 		messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
@@ -64,13 +65,13 @@ def create_user(request):
 
 	try: 
 		User.objects.get(username=request.POST['email'])
-	except:# ObjectDoesNotExist:
+	except ObjectDoesNotExist:
 		new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
 		new_user.last_name = request.POST['last']	
 		new_user.save()
 		really_new_user = UserModel(user=new_user, umbcid=request.POST['umbcid'], rating=5)
 		really_new_user.save()
-		
+
 		user = authenticate(username=request.POST['email'], password=request.POST['password'])
 		login(request, user)
 		request.session['user_id'] = user.id
@@ -81,7 +82,10 @@ def create_user(request):
 @login_required(login_url='login_user')
 def home(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
-	
+	try:
+		userstuff = UserModel.objects.get(user=user)
+	except:
+		return HttpResonse("<html>Shouldnt hit here database needs to be redone.</html>")
 	try:
 		posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=float(request.POST['limit']))
 	except:
@@ -97,8 +101,8 @@ def home(request):
 		post_page = post_paginator.page(1)
 	except EmptyPage:
 		post_page = post_paginator.page(post_paginator.num_pages)
-
-	context = {'user': user, 'post_page': post_page, 'posts': posts}
+	ratingcounter = range(1, userstuff.rating)
+	context = {'user': user, 'post_page': post_page, 'posts': posts,}
 	return render(request, 'marketplace/home.html', context)
 
 #@login_required(login_url='login_user')
@@ -107,6 +111,11 @@ def home(request):
 @login_required(login_url='login_user')
 def profile(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
+	try:
+		userstuff = UserModel.objects.get(user=user)
+	except:
+		return HttpResonse("<html>Shouldnt hit here database needs to be redone.</html>")
+	
 	posts = Post.objects.filter(user=user)
 	
 	post_paginator = Paginator(posts, 5)
@@ -120,7 +129,9 @@ def profile(request):
 		post_page = post_paginator.page(post_paginator.num_pages)
 	
 	edit = request.GET.get('edit');
-	context = {'user': user, 'post_page': post_page, 'posts': posts, 'edit': edit}
+	ratingcounter = range(0,userstuff.rating)
+	missing = range(0, 5 - userstuff.rating)
+	context = {'user': user, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
 	return render(request, 'marketplace/profile.html', context)
 	
 

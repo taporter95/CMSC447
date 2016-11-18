@@ -17,10 +17,12 @@ class Post(models.Model):
 	post_type = models.CharField(max_length=20)
 	creation_date = models.DateTimeField(db_index=True)
 
-#TODO switch over to this instead of vanilla User
+
+
+#TODO
 class UserModel(models.Model):
 	user = models.OneToOneField(User)
-	umbcid = models.CharField(max_length=7)
+	umbcid = models.CharField(max_length=7,primary_key=True)
 	rating = models.PositiveSmallIntegerField()
 	
 	def updateRating(self, rating):
