@@ -3,15 +3,15 @@ CMSC447 Project
 
 
 Setting up github:
-git clone *HTTPS from home page*
-git checkout -b *name of branch*
-git pull origin *name of branch*
+- git clone *HTTPS from home page*
+- git checkout -b *name of branch*
+- git pull origin *name of branch*
 
 starting the app:
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-'The app will be running on http://127.0.0.1:8000/'
+- python manage.py makemigrations
+- python manage.py migrate
+- python manage.py runserver
+- 'The app will be running on http://127.0.0.1:8000/'
 
 Getting the app to run:
 
