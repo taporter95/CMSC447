@@ -21,6 +21,9 @@ import re
 import os
 
 # Create your views here.
+@login_required(login_url='login_user')
+def redirect(request):
+	return HttpResponseRedirect('/')
 
 def login_user(request):
 	return render(request, 'registration/login.html')
@@ -101,7 +104,7 @@ def home(request):
 		post_page = post_paginator.page(1)
 	except EmptyPage:
 		post_page = post_paginator.page(post_paginator.num_pages)
-	ratingcounter = range(1, userstuff.rating)
+
 	context = {'user': user, 'post_page': post_page, 'posts': posts,}
 	return render(request, 'marketplace/home.html', context)
 
@@ -198,3 +201,7 @@ def checkout(request, post_id):
 @login_required(login_url='login_user')
 def buy(request, post_id):
 	return render(request, 'marketplace/checkout.html')
+
+
+
+

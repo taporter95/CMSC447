@@ -18,5 +18,6 @@ urlpatterns = [
 	url(r'^delete_post/(?P<post_id>[0-9]+)$', views.delete_post, name='delete_post'),
 	url(r'^checkout/(?P<post_id>[0-9]+)$', views.checkout, name='checkout'),
 	url(r'^buy/(?P<post_id>[0-9]+)$', views.buy, name='buy'),
+	url(r'.+$', views.home, name='redirect'),
 
 	]

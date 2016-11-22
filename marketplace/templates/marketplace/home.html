@@ -143,20 +143,24 @@
                       <label for="image">Image</label>
                       <input class="form-control" type="file" name="image">
                       </br>
-          						<label for="cost">Price</label>
-          						<input class="form-control" type="text" id="cost" name="cost" value="0">
-          						</br>
+          						
                       <label for="type">Good or Service</label>
                       <select class="form-control" id="type" name="type">
                         <option value="good">Good</option>
                         <option value="service">Service</option>
                       </select>
                       </br>
-                      <label for="barter">Accept goods/services</label>
+                      <label for="barter">Accept goods/services or money</label>
                       <select class="form-control" id="barter" name="barter">
-                      <option value="1">None</option>
+                      <option value="1">Good</option>
+						<option value="2">Services</option>
+						<option value="3">Cash</option>
                       </select>
                       </br>
+					<label for="cost">Price</label>
+          			<input class="form-control" type="text" id="cost" name="cost" value="0">
+          			</br>
+
           						<input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>
           					      
 					          </form>
