@@ -14,12 +14,12 @@
                     <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
                 </span>
 
-                <h3 class="panel-title">{{ post.subject }} - ${{ post.cost }}</h3>
+                <h3 class="panel-title">{{ post.subject }} - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </h3>
             </div>
             <div class="panel-body">
               <div class="media">
                 <div class="media-left">
-                  <a href="#">
+                  <a href="{% url 'view_post' post.id %}">
                     {% if post.image %}
                     <img class="media-object" style="height: 75px; width: 75px" src="{{ post.image.url }}">
                     {% endif %}
@@ -62,7 +62,7 @@
 		<button type="button" class="btn btn-primary col-md-offset-4" data-toggle="modal" data-target="#myModal">
         New Listing 
       	</button>
-		<form action="{% url 'home' %}" method="post">
+		<form action="{% url 'search_results' %}" method="post">
       {% csrf_token %}
 			</br>
 			</br>
