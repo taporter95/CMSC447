@@ -90,9 +90,21 @@ def home(request):
 	except:
 		return HttpResonse("<html>Shouldnt hit here database needs to be redone.</html>")
 	try:
-		posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=float(request.POST['limit']))
+		limit = float(request.POST['limit'])
 	except:
-		posts = Post.objects.all()
+		limit = float(100000000)
+
+	try:
+		if request.POST['free']:
+			try:
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+			except:
+				posts = Post.objects.all().filter(cost=0)
+	except:
+		try:
+			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+		except:
+			posts = Post.objects.all().filter(cost__lte=limit)
 
 	post_paginator = Paginator(posts, 5)
 
@@ -108,8 +120,40 @@ def home(request):
 	context = {'user': user, 'post_page': post_page, 'posts': posts,}
 	return render(request, 'marketplace/home.html', context)
 
-#@login_required(login_url='login_user')
-#def home_aux
+@login_required(login_url='login_user')
+def search_results(request):
+	
+	try:
+		limit = float(request.POST['limit'])
+	except:
+		limit = float(100000000)
+
+	try:
+		if request.POST['free']:
+			try:
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+			except:
+				posts = Post.objects.all().filter(cost=0)
+	except:
+		try:
+			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+		except:
+			posts = Post.objects.all().filter(cost__lte=limit)
+
+ 
+	post_paginator = Paginator(posts, 5)
+
+	page = request.GET.get('page')
+
+	try:
+		post_page = post_paginator.page(page)
+	except PageNotAnInteger:
+		post_page = post_paginator.page(1)
+	except EmptyPage:
+		post_page = post_paginator.page(post_paginator.num_pages)
+
+	context = {'post_page': post_page, 'posts': posts}
+	return render(request, 'marketplace/search_results.html', context)
 
 @login_required(login_url='login_user')
 def profile(request):
@@ -136,7 +180,16 @@ def profile(request):
 	missing = range(0, 5 - userstuff.rating)
 	context = {'user': user, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
 	return render(request, 'marketplace/profile.html', context)
-	
+
+@login_required(login_url='login_user')
+def update_profile(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	user.first_name = request.POST.get('first')
+	user.last_name = request.POST.get('last')
+	user.email = request.POST.get('email')
+
+	user.save()
+	return HttpResponseRedirect(reverse('profile'))
 
 @login_required(login_url='login_user')
 def create_post(request):
