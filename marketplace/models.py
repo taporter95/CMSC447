@@ -26,7 +26,7 @@ class UserModel(models.Model):
             str(int(self.rating))
 
     def updateRating(self, rating):
-        if rating < 5 or rating < 0:
+        if rating > 5 or rating < 0:
             return -1
         else:
             self.rating += rating
