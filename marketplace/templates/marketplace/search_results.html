@@ -1,0 +1,61 @@
+{% extends "base2.html" %}
+
+{% block content %}
+  
+	<div class="col-md-8 well col-md-offset-2">  
+    {% if posts.count == 0 %}
+      <p style="text-align: center;">There are no posts</p>
+    {% endif %}   
+  		{% for post in post_page %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span style="float:right;">
+                    <a href="{% url 'view_post' post.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                    <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
+                </span>
+
+                <h3 class="panel-title">{{ post.subject }} - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </h3>
+            </div>
+            <div class="panel-body">
+              <div class="media">
+                <div class="media-left">
+                  <a href="{% url 'view_post' post.id %}">
+                    {% if post.image %}
+                    <img class="media-object" style="height: 75px; width: 75px" src="{{ post.image.url }}">
+                    {% endif %}
+                  </a>
+                </div>
+                <div class="media-body">
+                  <p>{{ post.description }}</p>
+                </div>
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+      {% if posts %}
+      <div style="text-align: center;">
+        <div class="pagination" style="margin: auto;">
+          <span class="step-links">
+            {% if post_page.number != 1 %}
+              <a href="?page=1"><button class="btn btn-primary btn-xs">First</button></a>
+            {% endif %}
+            {% if post_page.has_previous %}
+              <a href="?page={{ post_page.previous_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></button></a>
+            {% endif %}
+            <span class="current">
+              page {{ post_page.number }} of {{ post_page.paginator.num_pages }}
+            </span>
+            {% if post_page.has_next %}
+              <a href="?page={{ post_page.next_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button></a>
+            {% endif %}
+            {% if post_page.number != post_page.paginator.num_pages %}
+              <a href="?page={{ post_page.paginator.num_pages }}"><button class="btn btn-primary btn-xs">Last</button></a>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+	</div> 
+
+{% endblock %}

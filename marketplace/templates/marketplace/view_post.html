@@ -22,7 +22,7 @@
   <p> Goods/Services accepted: None </p>
   </br>
   <p> seller: {{ post.user.first_name }} {{ post.user.last_name }} </p>
-  <a href="{% url 'buy' post.id %}"><button class="btn btn-primary">Buy</button></a>
+  <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
 </div>
 
     
