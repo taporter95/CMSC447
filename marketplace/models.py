@@ -15,9 +15,19 @@ class Post(models.Model):
 
 # TODO
 class UserModel(models.Model):
+    MALE = 'M'
+    FEMALE = 'F'
+    GENDER_CHOICES = (
+        (MALE, 'Male'),
+        (FEMALE, 'Female'),
+    )
     user = models.OneToOneField(User)
     umbcid = models.CharField(max_length=7, primary_key=True)
     rating = models.PositiveSmallIntegerField()
+    birth_date = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=8, blank=True, choices=GENDER_CHOICES)
+    location = models.CharField(max_length=200, blank=True)
+    banned = models.BooleanField(default=False)
 
     def __str__(self):
         return "Email: " + str(self.user.username) + \
