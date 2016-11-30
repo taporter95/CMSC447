@@ -12,6 +12,16 @@ class Post(models.Model):
     post_type = models.CharField(max_length=20)
     creation_date = models.DateTimeField(db_index=True)
 
+class Transaction(models.Model):
+	seller = models.ForeignKey(User, on_delete=models.CASCADE)
+	payment = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
+	buyerpaid = models.BooleanField(default=False)
+	sellerconfirmed = models.BooleanField(default=False)
+	def __str__(self):
+		return "Seller: " + str(self.seller) + \
+            "\Payment Method: " + str(self.payment) + \
+            "\nHas the buyer paided: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
+            str(int(self.sellerconfirmed))
 
 # TODO
 class UserModel(models.Model):
