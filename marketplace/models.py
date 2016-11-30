@@ -35,6 +35,12 @@ class UserModel(models.Model):
             "\numbcid: " + str(self.umbcid) + "\nCurrent Rating: " + \
             str(int(self.rating))
 
+    def getDateForHTML(self):
+        if self.birth_date:
+            return self.birth_date.strftime("%Y-%m-%d")
+        else:
+            return ""
+
     def updateRating(self, rating):
         if rating > 5 or rating < 0:
             return -1

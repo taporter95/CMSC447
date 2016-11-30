@@ -191,6 +191,8 @@ def update_profile(request):
     user.email = request.POST.get('email')    
     if request.POST.get('birthday'):
         userstuff.birth_date = request.POST.get('birthday')
+    else:
+        userstuff.birth_date = None
     userstuff.gender = request.POST.get('gender')
     userstuff.location = request.POST.get('location')
 
