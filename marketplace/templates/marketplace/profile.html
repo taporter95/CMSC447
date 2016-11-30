@@ -33,36 +33,38 @@
     <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">
   </form>
 
-  <div id="user_info">
+  <div id="user_info" itemscope itemtype="http://meta.schema.org/Person">
     <h3 id="subject"> Profile </h3>
     </br>
-    <p> {{ user.first_name }} </p>
+    <p itemprop="givenName"> {{ user.first_name }} </p>
     </br>
-    <p> {{ user.last_name }} </p> 
+    <p itemprop="familyName"> {{ user.last_name }} </p> 
     </br>
-    <p> {{ user.email }} </p>
+    <p itemprop="email"> {{ user.email }} </p>
     </br>
     <p> {{ userstuff.umbcid }} </p>
     </br>
     {% if userstuff.location %}
-    <p> {{ userstuff.location }} </p>
+    <p itemprop="address"> {{ userstuff.location }} </p>
     </br>
     {% endif %}
     {% if userstuff.birth_date %}
-    <p> {{ userstuff.birth_date }} </p>
+    <p><time itemprop="birthDate" datetime="{{ userstuff.getDateForHTML }}"> {{ userstuff.birth_date }} </time></p>
     </br>
     {% endif %}
     {% if userstuff.gender %}
-    <p> {{ userstuff.gender }} </p>
+    <p itemprop="gender"> {{ userstuff.gender }} </p>
     </br>    
     {% endif %}
-	{% for i in ratingcounter %}
-    	<span class="glyphicon glyphicon-star"></span>
-	{% endfor %}
-	{% for i in missing %}
-    	<span class="glyphicon glyphicon-star-empty"></span>
-	{% endfor %}
-      
+    <div itemscope itemtype="http://meta.schema.org/AggregateRating">
+      <span class="hidden" itemprop="ratingValue">{{ userstuff.rating }}</span>
+      {% for i in ratingcounter %}
+        <span class="glyphicon glyphicon-star"></span>
+	  {% endfor %}
+	  {% for i in missing %}
+      <span class="glyphicon glyphicon-star-empty"></span>
+	  {% endfor %}
+    </div>
     </br>
     </br>
     <button id="edit_button" class="btn btn-default btn-sm">Edit Profile</button>
@@ -78,7 +80,7 @@
     <p style="text-align: center;">Your posts will show up here</p>
   {% endif %}   
   {% for post in post_page %}
-  <div class="panel panel-default">
+  <div class="panel panel-default" itemscope itemtype="http://schema.org/Product">
       <div class="panel-heading">
           <span style="float:right;">
               <a href="{% url 'view_post' post.id %}"><button class="btn btn-primary btn-xs">View</button></a>
@@ -86,19 +88,19 @@
               <a href="{% url 'delete_post' post.id %}"><button class="btn btn-danger btn-xs">Delete</button></a>
           </span>
 
-          <h3 class="panel-title">{{ post.subject }} - ${{ post.cost }}</h3>
+          <h3 class="panel-title"><span itemprop="name">{{ post.subject }}</span> - ${{ post.cost }}</h3>
       </div>
       <div class="panel-body">
         <div class="media">
           <div class="media-left">
             <a href="#">
               {% if post.image %}
-              <img class="media-object" style="height: 75px; width: 75px;" src="{{ post.image.url }}">
+              <img itemprop="image" class="media-object" style="height: 75px; width: 75px;" src="{{ post.image.url }}">
               {% endif %}
             </a>
           </div>
           <div class="media-body">
-            <p>{{ post.description }}</p>
+            <p itemprop="description">{{ post.description }}</p>
           </div>
         </div>
       </div>
