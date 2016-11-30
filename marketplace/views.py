@@ -34,10 +34,19 @@ def authenticate_user(request):
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
+
     if user is not None:
-        login(request, user)
-        request.session['user_id'] = user.id
-        return HttpResponseRedirect(reverse('home'))
+        # Don't let user log in if they're banned
+        userstuff = UserModel.objects.get(user=user)
+        if userstuff is None:
+            return render(request, 'registration/login.html')
+        elif userstuff.banned:
+            messages.add_message(request, messages.ERROR, 'You have been banned from this site.')
+            return render(request, 'registration/login.html')
+        else:
+            login(request, user)
+            request.session['user_id'] = user.id
+            return HttpResponseRedirect(reverse('home'))
     else:
         return render(request, 'registration/login.html')
 
@@ -188,7 +197,7 @@ def update_profile(request):
     userstuff = get_object_or_404(UserModel, user=user)
     user.first_name = request.POST.get('first')
     user.last_name = request.POST.get('last')
-    user.email = request.POST.get('email')    
+    user.email = request.POST.get('email')
     if request.POST.get('birthday'):
         userstuff.birth_date = request.POST.get('birthday')
     else:
