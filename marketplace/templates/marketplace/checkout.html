@@ -7,7 +7,9 @@
       <div class="media">
         <div class="media-left">
           <a href="#">
+			{% if post.image %}
             <img class="media-object" style="height: 100px; width: 100px" src="{{ post.image.url }}" alt="...">
+			{% endif %}
           </a>
         </div>
         <div class="media-body">
@@ -18,7 +20,8 @@
       </div>     	
     </div>
 	</br>
-	<form id="post_form" action="#" method="post">
+	<form role="form" id="post_form" method="post" action="{% url 'actualbuy' %}" >
+		
 		{% csrf_token %}
   		</br>
   		<label for="payment">Choose Payment Method</label>
@@ -28,12 +31,12 @@
   		<input type="radio" name="payment" value="Service A"> Service A
   		</br>
   		<input type="radio" name="payment" value="Service B"> Service B
-		</form>
 		</br>
 		<label for="notes">Notes</label>
-		<textarea class="form-control" rows="3" id="notes" name="notes"></textarea>
+		<textarea class="form-control" rows="3" name="notes"></textarea>
 		</br>
-		<input class="btn btn-primary" id="submit_button"  type="submit" value="Buy"/>     
+		<input type="hidden" name="itemid" value={{ post.pk }} >
+		<input type="submit" class="btn btn-primary" id="submit_button" value="Buy"/>
 	</form>
 
 

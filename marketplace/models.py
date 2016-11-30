@@ -14,11 +14,14 @@ class Post(models.Model):
 
 class Transaction(models.Model):
 	seller = models.ForeignKey(User, on_delete=models.CASCADE)
+	buyer = models.IntegerField() # stores user_id number
 	payment = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
 	buyerpaid = models.BooleanField(default=False)
 	sellerconfirmed = models.BooleanField(default=False)
+	notes = models.CharField(max_length=256)
 	def __str__(self):
 		return "Seller: " + str(self.seller) + \
+			"Buyer: " + str(self.buyer) + \
             "\Payment Method: " + str(self.payment) + \
             "\nHas the buyer paided: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
             str(int(self.sellerconfirmed))

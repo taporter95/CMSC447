@@ -9,8 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 # , (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
-from .models import Post
-from .models import UserModel
+from .models import *
 import re
 
 
@@ -278,3 +277,20 @@ def checkout(request, post_id):
 @login_required(login_url='login_user')
 def buy(request, post_id):
     return render(request, 'marketplace/checkout.html')
+
+
+@login_required(login_url='login_user')
+def actualbuy(request):
+	if (request.method=='POST'):
+		payment = request.POST['payment']
+		notes = request.POST['notes']
+		notes = notes[:255]
+		itemid = request.POST['itemid']
+		p = Post.objects.get(pk=itemid)
+		transact = Transaction(seller=p.user, payment=payment, notes=notes, buyer=request.session['user_id'])
+		transact.save()
+
+		s ='Owner: ' + str(p.user) + '' +  payment + ' ' + notes + ' ' + itemid 
+		return HttpResponse("<html>%s</html>" % transact)
+	return HttpResponse("<html>NOPE</html>")
+
