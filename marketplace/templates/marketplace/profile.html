@@ -7,24 +7,27 @@
     {% csrf_token %}
     </br>
     <label for="first">First Name</label>
-    <input class="form-control" type="text" id="first" name="first" value="{{user.first_name}}">
+    <input class="form-control" type="text" id="first" name="first" value="{{ user.first_name }}">
     </br>
     <label for="last">Last Name</label>
-    <input class="form-control" type="text" id="last" name="last" value="{{user.last_name}}">
+    <input class="form-control" type="text" id="last" name="last" value="{{ user.last_name }}">
     </br>
     <label for="email">Email</label>
-    <input class="form-control" type="text" id="email" name="email" value="{{user.email}}">
+    <input class="form-control" type="text" id="email" name="email" value="{{ user.email }}">
     </br>
-    <!--<label for="cost">Birthday</label>
-    <input class="form-control" type="text" id="cost" name="cost">
+    <label for="birthday">Birthday</label>
+    <input class="form-control" type="date" id="birthday" name="birthday" value="{{ userstuff.getDateForHTML }}">
     </br>
-    <label for="cost">Location</label>
-    <input class="form-control" type="text" id="cost" name="cost">
+    <label for="location">Location</label>
+    <input class="form-control" type="text" id="location" name="location" value="{{ userstuff.location }}">
     </br>
-    <label for="barter">Gender</label>
-    <select class="form-control" id="barter" name="barter">
-    <option value="1">Male</option>
-    </select>-->
+    <label for="gender">Gender</label>
+    <select class="form-control" id="gender" name="gender" value="{{ userstuff.gender }}">
+      <option value="">Not Specified</option>
+      {% for gender in userstuff.GENDER_CHOICES %}
+      <option {% if gender.1 == userstuff.gender %}selected{% endif %}>{{ gender.1 }}</option>
+      {% endfor %}
+      </select>
     </br>
     <input class="btn btn-primary" id="submit_button"  type="submit" value="Submit"/>
     <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">
@@ -41,6 +44,18 @@
     </br>
     <p> {{ userstuff.umbcid }} </p>
     </br>
+    {% if userstuff.location %}
+    <p> {{ userstuff.location }} </p>
+    </br>
+    {% endif %}
+    {% if userstuff.birth_date %}
+    <p> {{ userstuff.birth_date }} </p>
+    </br>
+    {% endif %}
+    {% if userstuff.gender %}
+    <p> {{ userstuff.gender }} </p>
+    </br>    
+    {% endif %}
 	{% for i in ratingcounter %}
     	<span class="glyphicon glyphicon-star"></span>
 	{% endfor %}

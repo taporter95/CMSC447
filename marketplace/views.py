@@ -41,10 +41,19 @@ def authenticate_user(request):
     username = request.POST['username']
     password = request.POST['password']
     user = authenticate(username=username, password=password)
+
     if user is not None:
-        login(request, user)
-        request.session['user_id'] = user.id
-        return HttpResponseRedirect(reverse('home'))
+        # Don't let user log in if they're banned
+        userstuff = UserModel.objects.get(user=user)
+        if userstuff is None:
+            return render(request, 'registration/login.html')
+        elif userstuff.banned:
+            messages.add_message(request, messages.ERROR, 'You have been banned from this site.')
+            return render(request, 'registration/login.html')
+        else:
+            login(request, user)
+            request.session['user_id'] = user.id
+            return HttpResponseRedirect(reverse('home'))
     else:
         return render(request, 'registration/login.html')
 
@@ -294,18 +303,26 @@ def profile(request):
     edit = request.GET.get('edit')
     ratingcounter = range(0, userstuff.rating)
     missing = range(0, 5 - userstuff.rating)
-    context = {'user': user, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
+    context = {'user': user, 'userstuff': userstuff, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
     return render(request, 'marketplace/profile.html', context)
 
 
 @login_required(login_url='login_user')
 def update_profile(request):
     user = get_object_or_404(User, pk=request.session['user_id'])
+    userstuff = get_object_or_404(UserModel, user=user)
     user.first_name = request.POST.get('first')
     user.last_name = request.POST.get('last')
     user.email = request.POST.get('email')
+    if request.POST.get('birthday'):
+        userstuff.birth_date = request.POST.get('birthday')
+    else:
+        userstuff.birth_date = None
+    userstuff.gender = request.POST.get('gender')
+    userstuff.location = request.POST.get('location')
 
     user.save()
+    userstuff.save()
     return HttpResponseRedirect(reverse('profile'))
 
 
