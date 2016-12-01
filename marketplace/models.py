@@ -4,50 +4,59 @@ from django.contrib.auth.models import User
 
 
 class Post(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	subject = models.CharField(max_length=200, db_index=True)
-	description = models.CharField(max_length=200)
-	cost = models.FloatField(default=0)
-	image = models.FileField(null=True, blank=True, upload_to='uploads/')
-	post_type = models.CharField(max_length=20)
-	barter_type = models.CharField(max_length=20)
-	creation_date = models.DateTimeField(db_index=True)
-	status = models.CharField(max_length=20)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=200, db_index=True)
+    description = models.CharField(max_length=200)
+    cost = models.FloatField(default=0)
+    image = models.FileField(null=True, blank=True, upload_to='uploads/')
+    post_type = models.CharField(max_length=20)
+    barter_type = models.CharField(max_length=20)
+    creation_date = models.DateTimeField(db_index=True)
+    status = models.CharField(max_length=20)
 
 class Transaction(models.Model):
-	'''
-	seller = models.ForeignKey(User, related_name='seller', on_delete=models.PROTECT)
-	buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.PROTECT)
-	post = models.ForeignKey(Post, related_name='post', on_delete=models.PROTECT)
-	payment_type = models.CharField(max_length=20)
-	notes = models.CharField(max_length=200)
-	status = models.CharField(max_length=20)
-	'''
+    '''
+    seller = models.ForeignKey(User, related_name='seller', on_delete=models.PROTECT)
+    buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.PROTECT)
+    post = models.ForeignKey(Post, related_name='post', on_delete=models.PROTECT)
+    payment_type = models.CharField(max_length=20)
+    notes = models.CharField(max_length=200)
+    status = models.CharField(max_length=20)
+    '''
+    seller = models.ForeignKey(User, related_name='seller', on_delete=models.PROTECT)
+    buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.PROTECT)
+    post = models.ForeignKey(Post, related_name='post', on_delete=models.PROTECT)
+    payment_type = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
+    buyerpaid = models.BooleanField(default=False)
+    sellerconfirmed = models.BooleanField(default=False)
+    notes = models.CharField(max_length=200)
+    status = models.CharField(max_length=20)
 
-	seller = models.ForeignKey(User, on_delete=models.CASCADE)
-	payment = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
-	buyerpaid = models.BooleanField(default=False)
-	sellerconfirmed = models.BooleanField(default=False)
-	def __str__(self):
-		return "Seller: " + str(self.seller) + \
+    def __str__(self):
+    	return "Seller: " + str(self.seller) + \
             "\Payment Method: " + str(self.payment) + \
-            "\nHas the buyer paided: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
+            "\nHas the buyer paid: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
             str(int(self.sellerconfirmed))
 
 
-# TODO
+    # TODO
 class UserModel(models.Model):
+    
     MALE = 'M'
     FEMALE = 'F'
+    OTHER = 'O'
     GENDER_CHOICES = (
         (MALE, 'Male'),
         (FEMALE, 'Female'),
+        (OTHER, 'Other'),
     )
+    
     user = models.OneToOneField(User)
     umbcid = models.CharField(max_length=7, primary_key=True)
     rating = models.PositiveSmallIntegerField()
     birth_date = models.DateField(null=True, blank=True)
-    gender = models.CharField(max_length=8, blank=True, choices=GENDER_CHOICES)
+    #choices=GENDER_CHOICES
+    gender = models.CharField(max_length=8, blank=True)
     location = models.CharField(max_length=200, blank=True)
     banned = models.BooleanField(default=False)
 

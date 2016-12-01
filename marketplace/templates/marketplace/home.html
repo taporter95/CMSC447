@@ -11,7 +11,12 @@
             <div class="panel-heading">
                 <span style="float:right;">
                     <a href="{% url 'view_post' post.id %}"><button class="btn btn-primary btn-xs">View</button></a>
-                    <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
+                    {% if user != post.user %}
+                      <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
+                    {% else %}
+                      <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Edit</button></a>
+                      <a href="{% url 'delete_post' post.id %}"><button class="btn btn-danger btn-xs">Delete</button></a>
+                    {% endif %}
                 </span>
 
                 <h3 class="panel-title">{{ post.subject }} - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </h3>

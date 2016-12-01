@@ -16,14 +16,21 @@
   </br>
   <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
   </br>
-  <a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Complete Transaction</button></a>
+  <a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>
   {% if user == transaction.seller %}
     <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-primary">Re-list Post</button></a>
   {% endif %}
+  </br>
+  </br>
+  {% if transaction.buyerpaid == True %}
+    <p>The buyer has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
+  {% endif %}
+  {% if transaction.sellerconfirmed == True %}
+    <p>The seller has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
+  {% endif %}
 </div>
 
-
-    
+  
 {% endblock %}
 {% block miscjs %}
 <script type="text/javascript">

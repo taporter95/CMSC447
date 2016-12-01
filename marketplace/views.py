@@ -9,15 +9,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 # , (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
-<<<<<<< HEAD
-from .models import Post, Transaction
+from .models import Post, Transaction, UserModel
 import datetime
 import calendar
 import random
-=======
-from .models import Post
-from .models import UserModel
->>>>>>> d846e812799dc222657893934b0bc488dbcb0db4
 import re
 
 
@@ -69,12 +64,14 @@ def create_user(request):
     else:
         messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
         return HttpResponseRedirect(reverse('new_user'))
-
+       
+        '''
     if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
         pass
     else:
         messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
         return HttpResponseRedirect(reverse('new_user'))
+        '''
 
     if request.POST['password'] != request.POST['repassword']:
         messages.add_message(request, messages.ERROR, 'Passwords do not match')
@@ -107,27 +104,9 @@ def delete_account(request):
 
 @login_required(login_url='login_user')
 def home(request):
-<<<<<<< HEAD
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	posts = Post.objects.filter(status="active")
-	'''
-	try:
-		limit = float(request.POST['limit'])
-	except:
-		limit = float(100000000)
-
-	try:
-		if request.POST['free']:
-			try:
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, status="active")
-			except:
-				posts = Post.objects.all().filter(cost=0, status="active")
-	except:
-		try:
-			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, status="active")
-		except:
-			posts = Post.objects.all().filter(cost__lte=limit, status="active")
-	'''
+	
 	post_paginator = Paginator(posts, 5)
 
 	page = request.GET.get('page')
@@ -144,141 +123,69 @@ def home(request):
 
 @login_required(login_url='login_user')
 def search_results(request):
-	try:
-		good = request.POST['good']
-	except:
-		good = "off"
-
-	try:
-		service = request.POST['service']
-	except:
-		service = "off"
-
-	if (good == "on" and service == "on") or (good == "off" and service == "off" ):
-		filter_type = "both"
-	else:
-		if good == "on":
-			filter_type = "good"
-		else:
-			filter_type = "service"
-
-	try:
-		limit = float(request.POST['limit'])
-	except:
-		limit = float(100000000)
-
-	try:
-		if request.POST['free']:
-			try:
-				if filter_type == "both":
-					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
-				else:
-					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type)
-			except:
-				if filter_type == "both":
-					posts = Post.objects.all().filter(cost=0)
-				else:
-					posts = Post.objects.all().filter(cost=0, post_type=filter_type)
-	except:
-		try:
-			if filter_type == "both":
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
-			else:
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type)
-
-		except:
-			if filter_type == "both":
-				posts = Post.objects.all().filter(cost__lte=limit)
-			else:
-				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type) 
-
- 
-	post_paginator = Paginator(posts, 5)
-
-	page = request.GET.get('page')
-
-	try:
-		post_page = post_paginator.page(page)
-	except PageNotAnInteger:
-		post_page = post_paginator.page(1)
-	except EmptyPage:
-		post_page = post_paginator.page(post_paginator.num_pages)
-
-	context = {'post_page': post_page, 'posts': posts}
-	return render(request, 'marketplace/search_results.html', context)
-=======
     user = get_object_or_404(User, pk=request.session['user_id'])
-    # try:
-    # userstuff = UserModel.objects.get(user=user)
-    # except:
-    # return HttpResponse("<html>Shouldnt hit here database needs to be redone.</html>")
     try:
-        limit = float(request.POST['limit'])
+        good = request.POST['good']
     except:
-        limit = float(100000000)
+    	good = "off"
 
     try:
-        if request.POST['free']:
-            try:
-                posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
-            except:
-                posts = Post.objects.all().filter(cost=0)
+    	service = request.POST['service']
     except:
-        try:
-            posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
-        except:
-            posts = Post.objects.all().filter(cost__lte=limit)
+    	service = "off"
+
+    if (good == "on" and service == "on") or (good == "off" and service == "off" ):
+    	filter_type = "both"
+    else:
+    	if good == "on":
+    		filter_type = "good"
+    	else:
+    		filter_type = "service"
+
+    try:
+    	limit = float(request.POST['limit'])
+    except:
+    	limit = float(100000000)
+
+    try:
+    	if request.POST['free']:
+    		try:
+    			if filter_type == "both":
+    				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+    			else:
+    				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type)
+    		except:
+    			if filter_type == "both":
+    				posts = Post.objects.all().filter(cost=0)
+    			else:
+    				posts = Post.objects.all().filter(cost=0, post_type=filter_type)
+    except:
+    	try:
+    		if filter_type == "both":
+    			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+    		else:
+    			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type)
+
+    	except:
+    		if filter_type == "both":
+    			posts = Post.objects.all().filter(cost__lte=limit)
+    		else:
+    			posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type) 
+
 
     post_paginator = Paginator(posts, 5)
 
     page = request.GET.get('page')
 
     try:
-        post_page = post_paginator.page(page)
+    	post_page = post_paginator.page(page)
     except PageNotAnInteger:
-        post_page = post_paginator.page(1)
+    	post_page = post_paginator.page(1)
     except EmptyPage:
-        post_page = post_paginator.page(post_paginator.num_pages)
+    	post_page = post_paginator.page(post_paginator.num_pages)
 
-    context = {'user': user, 'post_page': post_page, 'posts': posts}
-    return render(request, 'marketplace/home.html', context)
-
-
-@login_required(login_url='login_user')
-def search_results(request):
-
-    try:
-        limit = float(request.POST['limit'])
-    except:
-        limit = float(100000000)
-
-    try:
-        if request.POST['free']:
-            try:
-                posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
-            except:
-                posts = Post.objects.all().filter(cost=0)
-    except:
-        try:
-            posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
-        except:
-            posts = Post.objects.all().filter(cost__lte=limit)
-
-    post_paginator = Paginator(posts, 5)
-
-    page = request.GET.get('page')
-
-    try:
-        post_page = post_paginator.page(page)
-    except PageNotAnInteger:
-        post_page = post_paginator.page(1)
-    except EmptyPage:
-        post_page = post_paginator.page(post_paginator.num_pages)
-
-    context = {'post_page': post_page, 'posts': posts}
+    context = {'post_page': post_page, 'posts': posts, 'user': user}
     return render(request, 'marketplace/search_results.html', context)
-
->>>>>>> d846e812799dc222657893934b0bc488dbcb0db4
 
 @login_required(login_url='login_user')
 def profile(request):
@@ -361,9 +268,10 @@ def create_post(request):
 
 @login_required(login_url='login_user')
 def view_post(request, post_id):
+    user = get_object_or_404(User, pk=request.session['user_id'])
     post = get_object_or_404(Post, pk=post_id)
     seller = post.user
-    context = {'post': post, 'seller': seller}
+    context = {'post': post, 'seller': seller, 'user': user}
     return render(request, 'marketplace/view_post.html', context)
 
 @login_required(login_url='login_user')
@@ -432,10 +340,19 @@ def relist_post(request, transaction_id):
 
 @login_required(login_url='login_user')
 def complete_transaction(request, transaction_id):
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	transaction = get_object_or_404(Transaction, pk=transaction_id)
-	post = get_object_or_404(Post, pk=transaction.post.id)
-	transaction.delete()
-	post.delete()
-	return HttpResponseRedirect(reverse('transactions'))
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    transaction = get_object_or_404(Transaction, pk=transaction_id)
+    post = get_object_or_404(Post, pk=transaction.post.id)
+
+    if user == transaction.seller:
+        transaction.sellerconfirmed = True
+    elif user == transaction.buyer:
+        transaction.buyerpaid = True
+       
+    transaction.save() 
+    if transaction.sellerconfirmed == True and transaction.buyerpaid == True:   
+       transaction.delete()
+       post.delete()
+
+    return HttpResponseRedirect(reverse('transactions'))
 

@@ -26,11 +26,12 @@
   </br>
   <p> Seller: {{ post.user.first_name }} {{ post.user.last_name }} </p>
   </br>
-  <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
+  {% if user != post.user %}
+    <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
+  {% endif %}
   <button id="edit_button" class="btn btn-primary">Edit</button>
 </div>
 <div hidden id="edit_form" class="col-md-6">
-  </br>
   <form id="post_form" action="{% url 'update_post' post.id%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     </br>
@@ -39,7 +40,7 @@
     </br>
     </br>
     <label for="description">Description</label>
-    <textarea class="form-control" rows="3" id="description" name="description" value="{{ post.description }}"></textarea>
+    <textarea class="form-control" rows="3" id="description" name="description" value="{{ post.description }}">{{ post.description }}</textarea>
     </br>
     <label for="image">Image</label>
     <input class="form-control" type="file" name="image">
@@ -54,14 +55,10 @@
       <option value="services">Services</option>
     </select>
     </br>
-    <label for="barter">Accept goods/services</label>
-    <select class="form-control" id="barter" name="barter">
-    <option value="1">None</option>
-    </select>
-    </br>
-    <input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>
+    <input class="btn btn-primary" id="submit_button"  type="submit" value="Post"/>
     <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">                        
   </form>
+  </br>
   </br>
 </div>
 
