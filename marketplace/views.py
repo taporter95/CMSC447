@@ -12,7 +12,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import *
 #, (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
-from .models import Post
+from .models import Post, Transaction
 import datetime
 import calendar
 import random
@@ -77,9 +77,18 @@ def create_user(request):
 	return HttpResponseRedirect(reverse('new_user'))
 
 @login_required(login_url='login_user')
+def delete_account(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	logout(request)
+	user.delete()
+	return HttpResponseRedirect('/')
+
+
+@login_required(login_url='login_user')
 def home(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
-	
+	posts = Post.objects.filter(status="active")
+	'''
 	try:
 		limit = float(request.POST['limit'])
 	except:
@@ -88,15 +97,15 @@ def home(request):
 	try:
 		if request.POST['free']:
 			try:
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, status="active")
 			except:
-				posts = Post.objects.all().filter(cost=0)
+				posts = Post.objects.all().filter(cost=0, status="active")
 	except:
 		try:
-			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, status="active")
 		except:
-			posts = Post.objects.all().filter(cost__lte=limit)
-
+			posts = Post.objects.all().filter(cost__lte=limit, status="active")
+	'''
 	post_paginator = Paginator(posts, 5)
 
 	page = request.GET.get('page')
@@ -113,7 +122,24 @@ def home(request):
 
 @login_required(login_url='login_user')
 def search_results(request):
-	
+	try:
+		good = request.POST['good']
+	except:
+		good = "off"
+
+	try:
+		service = request.POST['service']
+	except:
+		service = "off"
+
+	if (good == "on" and service == "on") or (good == "off" and service == "off" ):
+		filter_type = "both"
+	else:
+		if good == "on":
+			filter_type = "good"
+		else:
+			filter_type = "service"
+
 	try:
 		limit = float(request.POST['limit'])
 	except:
@@ -122,14 +148,27 @@ def search_results(request):
 	try:
 		if request.POST['free']:
 			try:
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+				if filter_type == "both":
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
+				else:
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type)
 			except:
-				posts = Post.objects.all().filter(cost=0)
+				if filter_type == "both":
+					posts = Post.objects.all().filter(cost=0)
+				else:
+					posts = Post.objects.all().filter(cost=0, post_type=filter_type)
 	except:
 		try:
-			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+			if filter_type == "both":
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
+			else:
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type)
+
 		except:
-			posts = Post.objects.all().filter(cost__lte=limit)
+			if filter_type == "both":
+				posts = Post.objects.all().filter(cost__lte=limit)
+			else:
+				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type) 
 
  
 	post_paginator = Paginator(posts, 5)
@@ -179,7 +218,7 @@ def update_profile(request):
 def create_post(request):
 	flag = 0;
 	user = get_object_or_404(User, pk=request.session['user_id'])
-	new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], creation_date = timezone.now())
+	new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], status="active", creation_date = timezone.now())
 	
 	if len(request.POST['subject']) == 0:
 		flag = 1;
@@ -201,6 +240,9 @@ def create_post(request):
 	except:
 		pass
 
+	new_post.post_type = request.POST['type']
+	new_post.barter_type = request.POST['barter']
+
 	new_post.save()
 	return HttpResponseRedirect(reverse('home'))
 
@@ -217,6 +259,10 @@ def update_post(request, post_id):
 	post.subject = request.POST['subject']
 	post.description = request.POST['description']
 	post.cost = float(request.POST['cost'])
+	try:
+		post.image = request.FILES['image']
+	except:
+		pass
 	post.save()
 	return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
 
@@ -227,7 +273,7 @@ def delete_post(request, post_id):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	posts = Post.objects.filter(user=user)
 	context = {'user': user, 'posts':posts}
-	return render(request, 'marketplace/profile.html', context)
+	return HttpResponseRedirect(reverse('profile'))
 
 @login_required(login_url='login_user')
 def checkout(request, post_id):
@@ -237,4 +283,43 @@ def checkout(request, post_id):
 
 @login_required(login_url='login_user')
 def buy(request, post_id):
-	return render(request, 'marketplace/checkout.html')
+	post = get_object_or_404(Post, pk=post_id)
+	post.status = "pending"
+	buyer = get_object_or_404(User, pk=request.session['user_id'])
+	seller = post.user
+	new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
+	new_transaction.save()
+	post.save()	
+	return HttpResponseRedirect(reverse('home'))
+
+@login_required(login_url='login_user')
+def transactions(request):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	purchased = Transaction.objects.filter(buyer=user)
+	sold = Transaction.objects.filter(seller=user) 
+	context = {'purchased': purchased, 'sold': sold}
+	return render(request, 'marketplace/transactions.html', context)
+
+@login_required(login_url='login_user')
+def view_transaction(request, transaction_id):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	transaction = get_object_or_404(Transaction, pk=transaction_id)
+	post = transaction.post
+	context = {'transaction': transaction, 'post': post, 'user': user}
+	return render(request, 'marketplace/view_transaction.html', context)
+
+@login_required(login_url='login_user')
+def relist_post(request, transaction_id):
+	transaction = get_object_or_404(Transaction, pk=transaction_id)
+	transaction.post.status = "active"
+	transaction.delete()
+	return HttpResponseRedirect(reverse('transactions'))
+
+@login_required(login_url='login_user')
+def complete_transaction(request, transaction_id):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	transaction = get_object_or_404(Transaction, pk=transaction_id)
+	post = get_object_or_404(Post, pk=transaction.post.id)
+	transaction.delete()
+	post.delete()
+	return HttpResponseRedirect(reverse('transactions'))

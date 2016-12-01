@@ -118,18 +118,15 @@
           <div class="modal-body">
 
               <div>
-
-                <!-- Nav tabs 
                 <ul class="nav nav-tabs" role="tablist">
-                  <li role="presentation" class="active"><a href="#date" aria-controls="date" role="tab" data-toggle="tab">Good</a></li>
-                  <li role="presentation"><a href="#range" aria-controls="range" role="tab" data-toggle="tab">Service</a></li>
-                </ul>-->
+                  <li role="presentation" class="active"><a href="#good" aria-controls="date" role="tab" data-toggle="tab">Good</a></li>
+                  <li role="presentation"><a href="#service" aria-controls="range" role="tab" data-toggle="tab">Service</a></li>
+                </ul>
 
                 <!-- Tab panes -->
                 <div class="tab-content">
-                  <div role="tabpanel" class="tab-pane active" id="date">
+                  <div role="tabpanel" class="tab-pane active" id="good">
                     </br>
-                    <!-- form for search by date -->
                     <form id="post_form" action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
           						{% csrf_token %}
           						</br>
@@ -145,21 +142,45 @@
                       </br>
           						<label for="cost">Price</label>
           						<input class="form-control" type="text" id="cost" name="cost" value="0">
-          						</br>
-                      <label for="type">Good or Service</label>
-                      <select class="form-control" id="type" name="type">
-                        <option value="good">Good</option>
-                        <option value="service">Service</option>
-                      </select>
                       </br>
                       <label for="barter">Accept goods/services</label>
                       <select class="form-control" id="barter" name="barter">
-                      <option value="1">None</option>
+                        <option value="no">None</option>
+                        <option value="goods">Goods</option>
+                        <option value="services">Services</option>
+                        <option value="both">Either Goods or Services</option>
                       </select>
                       </br>
-          						<input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>
-          					      
+                      <input id="type" type="hidden" name="type" value="good">
+          						<input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>          					     
 					          </form>
+                  </div>
+                  <div role="tabpanel" class="tab-pane" id="service">
+                    </br>
+                    <form id="post_form" action="{% url 'create_post' %}" method="post" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      </br>
+                      <label for="subject">Title</label>
+                      <input class="form-control" type="text" id="subject" name="subject">
+                      </br>
+                      </br>
+                      <label for="description">Description</label>
+                      <textarea class="form-control" rows="3" id="description" name="description"></textarea>
+                      </br>
+                      <label for="cost">Hourly Rate</label>
+                      <input class="form-control" type="text" id="cost" name="cost" value="0">
+                      </br>
+                      <label for="barter">Accept goods/services</label>
+                      <select class="form-control" id="barter" name="barter">
+                        <option value="no">None</option>
+                        <option value="goods">Goods</option>
+                        <option value="services">Services</option>
+                        <option value="both">Either Goods or Services</option>
+                      </select>
+                      </br>
+                      <input id="type" type="hidden" name="type" value="service">
+                      <input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>                        
+                    </form>
                   </div>
                 </div>
               </div>

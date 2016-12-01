@@ -1,0 +1,39 @@
+{% extends "base2.html" %}
+
+{% block content %}
+
+<div id="post_info" class="col-md-6">
+  <h3 id="subject"> {{post.subject}} </h3>
+  <div class="panel-body">
+  <p>Description:</p>
+  <p>{{ post.description }}</p>
+  </br>
+  <p> Cost: {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </p>
+  </br>
+  <p> Payment type: {{ post.barter_type }} </p>
+  </br>
+  <p> Seller: {{ transaction.seller.first_name }} {{ transaction.seller.last_name }} </p>
+  </br>
+  <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
+  </br>
+  <a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Complete Transaction</button></a>
+  {% if user == transaction.seller %}
+    <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-primary">Re-list Post</button></a>
+  {% endif %}
+</div>
+
+
+    
+{% endblock %}
+{% block miscjs %}
+<script type="text/javascript">
+  $('#edit_button').click(function() {
+    $('#edit_form').toggle();
+    $('#post_info').toggle();
+  });
+  $('#cancel_button').click(function() {
+    $('#edit_form').toggle();
+    $('#post_info').toggle();
+  });
+</script>
+{% endblock %}
