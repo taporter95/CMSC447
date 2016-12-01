@@ -96,10 +96,10 @@ def create_user(request):
 
 @login_required(login_url='login_user')
 def delete_account(request):
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	logout(request)
-	user.delete()
-	return HttpResponseRedirect('/')
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    logout(request)
+    user.delete()
+    return HttpResponseRedirect('/')
 
 
 @login_required(login_url='login_user')
@@ -124,6 +124,7 @@ def home(request):
 @login_required(login_url='login_user')
 def search_results(request):
     user = get_object_or_404(User, pk=request.session['user_id'])
+
     try:
         good = request.POST['good']
     except:
@@ -148,6 +149,7 @@ def search_results(request):
     	limit = float(100000000)
 
     try:
+
     	if request.POST['free']:
     		try:
     			if filter_type == "both":
@@ -186,6 +188,7 @@ def search_results(request):
 
     context = {'post_page': post_page, 'posts': posts, 'user': user}
     return render(request, 'marketplace/search_results.html', context)
+
 
 @login_required(login_url='login_user')
 def profile(request):
@@ -236,35 +239,35 @@ def update_profile(request):
 @login_required(login_url='login_user')
 def create_post(request):
 
-	flag = 0;
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], status="active", creation_date = timezone.now())
-	
-	if len(request.POST['subject']) == 0:
-		flag = 1;
-		messages.add_message(request, messages.ERROR, 'Post Failed: Subject is a required field')
-	else:
-		new_post.subject = request.POST['subject']
+    flag = 0;
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], status="active", creation_date = timezone.now())
+    
+    if len(request.POST['subject']) == 0:
+        flag = 1;
+        messages.add_message(request, messages.ERROR, 'Post Failed: Subject is a required field')
+    else:
+        new_post.subject = request.POST['subject']
 
-	try:
-		new_post.cost = float(request.POST['cost'])
-	except:
-		flag = 1;
-		messages.add_message(request, messages.ERROR, 'Post Failed: Invalid price entry')
+    try:
+        new_post.cost = float(request.POST['cost'])
+    except:
+        flag = 1;
+        messages.add_message(request, messages.ERROR, 'Post Failed: Invalid price entry')
 
-	if flag:
-		HttpResponseRedirect(reverse('home'))
+    if flag:
+        HttpResponseRedirect(reverse('home'))
 
-	try:
-		new_post.image = request.FILES['image']
-	except:
-		pass
+    try:
+        new_post.image = request.FILES['image']
+    except:
+        pass
 
-	new_post.post_type = request.POST['type']
-	new_post.barter_type = request.POST['barter']
+    new_post.post_type = request.POST['type']
+    new_post.barter_type = request.POST['barter']
 
-	new_post.save()
-	return HttpResponseRedirect(reverse('home'))
+    new_post.save()
+    return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
 def view_post(request, post_id):
@@ -276,25 +279,25 @@ def view_post(request, post_id):
 
 @login_required(login_url='login_user')
 def update_post(request, post_id):
-	post = get_object_or_404(Post, pk=post_id)
-	post.subject = request.POST['subject']
-	post.description = request.POST['description']
-	post.cost = float(request.POST['cost'])
-	try:
-		post.image = request.FILES['image']
-	except:
-		pass
-	post.save()
-	return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
+    post = get_object_or_404(Post, pk=post_id)
+    post.subject = request.POST['subject']
+    post.description = request.POST['description']
+    post.cost = float(request.POST['cost'])
+    try:
+        post.image = request.FILES['image']
+    except:
+        pass
+    post.save()
+    return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
 
 @login_required(login_url='login_user')
 def delete_post(request, post_id):
-	post = get_object_or_404(Post, pk=post_id)
-	post.delete()
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	posts = Post.objects.filter(user=user)
-	context = {'user': user, 'posts':posts}
-	return HttpResponseRedirect(reverse('profile'))
+    post = get_object_or_404(Post, pk=post_id)
+    post.delete()
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    posts = Post.objects.filter(user=user)
+    context = {'user': user, 'posts':posts}
+    return HttpResponseRedirect(reverse('profile'))
 
 
 @login_required(login_url='login_user')
@@ -306,37 +309,37 @@ def checkout(request, post_id):
 
 @login_required(login_url='login_user')
 def buy(request, post_id):
-	post = get_object_or_404(Post, pk=post_id)
-	post.status = "pending"
-	buyer = get_object_or_404(User, pk=request.session['user_id'])
-	seller = post.user
-	new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
-	new_transaction.save()
-	post.save()	
-	return HttpResponseRedirect(reverse('home'))
+    post = get_object_or_404(Post, pk=post_id)
+    post.status = "pending"
+    buyer = get_object_or_404(User, pk=request.session['user_id'])
+    seller = post.user
+    new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
+    new_transaction.save()
+    post.save() 
+    return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
 def transactions(request):
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	purchased = Transaction.objects.filter(buyer=user)
-	sold = Transaction.objects.filter(seller=user) 
-	context = {'purchased': purchased, 'sold': sold}
-	return render(request, 'marketplace/transactions.html', context)
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    purchased = Transaction.objects.filter(buyer=user)
+    sold = Transaction.objects.filter(seller=user) 
+    context = {'purchased': purchased, 'sold': sold}
+    return render(request, 'marketplace/transactions.html', context)
 
 @login_required(login_url='login_user')
 def view_transaction(request, transaction_id):
-	user = get_object_or_404(User, pk=request.session['user_id'])
-	transaction = get_object_or_404(Transaction, pk=transaction_id)
-	post = transaction.post
-	context = {'transaction': transaction, 'post': post, 'user': user}
-	return render(request, 'marketplace/view_transaction.html', context)
+    user = get_object_or_404(User, pk=request.session['user_id'])
+    transaction = get_object_or_404(Transaction, pk=transaction_id)
+    post = transaction.post
+    context = {'transaction': transaction, 'post': post, 'user': user}
+    return render(request, 'marketplace/view_transaction.html', context)
 
 @login_required(login_url='login_user')
 def relist_post(request, transaction_id):
-	transaction = get_object_or_404(Transaction, pk=transaction_id)
-	transaction.post.status = "active"
-	transaction.delete()
-	return HttpResponseRedirect(reverse('transactions'))
+    transaction = get_object_or_404(Transaction, pk=transaction_id)
+    transaction.post.status = "active"
+    transaction.delete()
+    return HttpResponseRedirect(reverse('transactions'))
 
 @login_required(login_url='login_user')
 def complete_transaction(request, transaction_id):
