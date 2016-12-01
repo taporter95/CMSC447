@@ -3,40 +3,43 @@
 {% block content %}
 
 <div class="col-md-6">
+  <h3>{{ post.subject }}</h3>
 	<div class="panel-body">
       <div class="media">
         <div class="media-left">
           <a href="#">
+          {% if post.image %}
             <img class="media-object" style="height: 100px; width: 100px" src="{{ post.image.url }}" alt="...">
+          {% endif %}
           </a>
         </div>
         <div class="media-body">
-        	<h4>{{ post.subject }}</h4>
-        	<p>{{ post.description }}</p>
-        	<p>${{ post.cost }}</p>
         </div>
       </div>     	
     </div>
+    <p>{{ post.description }}</p>
+    <p>Cost: {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %}</p>
 	</br>
-	<form id="post_form" action="#" method="post">
+	<form id="post_form" action="{% url 'buy' post.id %}" method="post">
 		{% csrf_token %}
-  		</br>
-  		<label for="payment">Choose Payment Method</label>
-  		</br>
-  		<input type="radio" name="payment" value="Cash on delivery" checked> Cash on Delivery
-  		</br>
-  		<input type="radio" name="payment" value="Service A"> Service A
-  		</br>
-  		<input type="radio" name="payment" value="Service B"> Service B
-		</form>
+  	</br>
+		<label for="payment">Choose Payment Method</label>
 		</br>
-		<label for="notes">Notes</label>
-		<textarea class="form-control" rows="3" id="notes" name="notes"></textarea>
+		<input type="radio" name="payment" value="Cash on delivery" checked> Cash on Delivery
 		</br>
-		<input class="btn btn-primary" id="submit_button"  type="submit" value="Buy"/>     
+    {% if post.barter_type == "goods" or post.barter_type == "both" %}
+		  <input type="radio" name="payment" value="goods"> Barter a good
+    {% endif %}
+		</br>
+    {% if post.barter_type == "services" or post.barter_type == "both" %}
+		  <input type="radio" name="payment" value="services"> Barter a service
+    {% endif %}
+	  </br>
+	  <label for="notes">Notes</label>
+	  <textarea class="form-control" rows="3" id="notes" name="notes"></textarea>
+	  </br>
+	  <input class="btn btn-primary" id="submit_button"  type="submit" value="Buy"/>     
 	</form>
-
-
 	<a href="{% url 'home' %}"><button class="btn btn-default">cancel</button></a>
 </div>
 

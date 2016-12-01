@@ -2,28 +2,80 @@
 
 {% block content %}
 
-<div class="col-md-6">
+<div id="post_info" class="col-md-6">
   <h3 id="subject"> {{post.subject}} </h3>
   <div class="panel-body">
       <div class="media">
         <div class="media-left">
           <a href="#">
+          {% if post.image %}
             <img class="media-object" style="height: 100px; width: 100px;" src="{{post.image.url}}" alt="...">
+          {% endif %}
           </a>
         </div>
-        <div class="media-body">
-        	<!--<h4>{{ post.subject }}</h4>-->
-        	<p>{{ post.description }}</p>
+        <div class="media-body">        	
         </div>
-      </div>     	
+      </div>
     </div>
-  <p> cost: ${{ post.cost }} </p>
+  <p>Description:</p>
+  <p>{{ post.description }}</p>
   </br>
-  <p> Goods/Services accepted: None </p>
+  <p> Cost: {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </p>
   </br>
-  <p> seller: {{ post.user.first_name }} {{ post.user.last_name }} </p>
+  <p> Goods/Services accepted: {{ post.barter_type }} </p>
+  </br>
+  <p> Seller: {{ post.user.first_name }} {{ post.user.last_name }} </p>
+  </br>
   <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
+  <button id="edit_button" class="btn btn-primary">Edit</button>
+</div>
+<div hidden id="edit_form" class="col-md-6">
+  </br>
+  <form id="post_form" action="{% url 'update_post' post.id%}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    </br>
+    <label for="subject">Title</label>
+    <input class="form-control" type="text" id="subject" name="subject" value="{{ post.subject }}">
+    </br>
+    </br>
+    <label for="description">Description</label>
+    <textarea class="form-control" rows="3" id="description" name="description" value="{{ post.description }}"></textarea>
+    </br>
+    <label for="image">Image</label>
+    <input class="form-control" type="file" name="image">
+    </br>
+    <label for="cost">Price</label>
+    <input class="form-control" type="text" id="cost" name="cost" value="{{ post.cost }}">
+    </br>
+    <label for="type">Good or Service</label>
+    <select class="form-control" id="type" name="barter">
+      <option value="both">Both</option>
+      <option value="goods">Goods</option>
+      <option value="services">Services</option>
+    </select>
+    </br>
+    <label for="barter">Accept goods/services</label>
+    <select class="form-control" id="barter" name="barter">
+    <option value="1">None</option>
+    </select>
+    </br>
+    <input class="btn btn-default" id="submit_button"  type="submit" value="Post"/>
+    <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">                        
+  </form>
+  </br>
 </div>
 
     
+{% endblock %}
+{% block miscjs %}
+<script type="text/javascript">
+  $('#edit_button').click(function() {
+    $('#edit_form').toggle();
+    $('#post_info').toggle();
+  });
+  $('#cancel_button').click(function() {
+    $('#edit_form').toggle();
+    $('#post_info').toggle();
+  });
+</script>
 {% endblock %}
