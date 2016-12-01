@@ -39,11 +39,14 @@
     </br>
     <p> {{ user.email }} </p>
     </br>
-    <span class="glyphicon glyphicon-star"></span>
-    <span class="glyphicon glyphicon-star"></span>
-    <span class="glyphicon glyphicon-star"></span>
-    <span class="glyphicon glyphicon-star"></span>
-    <span class="glyphicon glyphicon-star-empty"></span>
+    <p> {{ userstuff.umbcid }} </p>
+    </br>
+	{% for i in ratingcounter %}
+    	<span class="glyphicon glyphicon-star"></span>
+	{% endfor %}
+	{% for i in missing %}
+    	<span class="glyphicon glyphicon-star-empty"></span>
+	{% endfor %}
       
     </br>
     </br>

@@ -4,6 +4,7 @@ from . import views
 app_name = 'marketplace'
 
 urlpatterns = [
+
 	url(r'^login/$', views.login_user, name="login_user"),
 	url(r'^authenticate_user/$', views.authenticate_user, name="authenticate_user"),
 	url(r'^logout/$', views.logout_user, name="logout_user"),
@@ -26,3 +27,4 @@ urlpatterns = [
 	url(r'^relist_post/(?P<transaction_id>[0-9]+)$', views.relist_post, name='relist_post'),
 	url(r'^complete_transaction/(?P<transaction_id>[0-9]+)$', views.complete_transaction, name='complete_transaction'),
 	]
+

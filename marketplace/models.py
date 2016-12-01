@@ -1,10 +1,5 @@
 from __future__ import unicode_literals
-import datetime
-import time
 from django.db import models
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from django.contrib.auth.models import User
 
 
@@ -27,7 +22,21 @@ class Transaction(models.Model):
 	notes = models.CharField(max_length=200)
 	status = models.CharField(max_length=20)
 
-#TODO switch over to this instead of vanilla User
+# TODO
 class UserModel(models.Model):
-	user = models.OneToOneField(User)
-	umbcid = models.CharField(max_length=7)
+    user = models.OneToOneField(User)
+    umbcid = models.CharField(max_length=7, primary_key=True)
+    rating = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return "Email: " + str(self.user.username) + \
+            "\nPassword: " + str(self.user.password) + \
+            "\numbcid: " + str(self.umbcid) + "\nCurrent Rating: " + \
+            str(int(self.rating))
+
+    def updateRating(self, rating):
+        if rating > 5 or rating < 0:
+            return -1
+        else:
+            self.rating += rating
+            self.rating /= 2
