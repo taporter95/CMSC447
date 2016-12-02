@@ -104,7 +104,15 @@ def delete_account(request):
 
 @login_required(login_url='login_user')
 def home(request):
-	user = get_object_or_404(User, pk=request.session['user_id'])
+	user = ''
+	try:
+		user = get_object_or_404(User, pk=request.session['user_id'])
+	except:
+		# will hit here if an admin still logged in tries to use the site this logs him out
+		# Weirdly always will show the main page at first but once admin tries to do anything it logs them out
+		# and prompts for password
+		logout(request)
+		HttpResponseRedirect('/login')
 	posts = Post.objects.filter(status="active")
 	
 	post_paginator = Paginator(posts, 5)

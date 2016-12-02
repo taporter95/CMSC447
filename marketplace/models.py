@@ -23,9 +23,9 @@ class Transaction(models.Model):
     notes = models.CharField(max_length=200)
     status = models.CharField(max_length=20)
     '''
-    seller = models.ForeignKey(User, related_name='seller', on_delete=models.PROTECT)
-    buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.PROTECT)
-    post = models.ForeignKey(Post, related_name='post', on_delete=models.PROTECT)
+    seller = models.ForeignKey(User, related_name='seller')
+    buyer = models.ForeignKey(User, related_name='buyer')
+    post = models.ForeignKey(Post, related_name='post')
     payment_type = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
     buyerpaid = models.BooleanField(default=False)
     sellerconfirmed = models.BooleanField(default=False)
@@ -34,7 +34,7 @@ class Transaction(models.Model):
 
     def __str__(self):
     	return "Seller: " + str(self.seller) + \
-            "\Payment Method: " + str(self.payment) + \
+            "\Payment Method: " + str(self.payment_type) + \
             "\nHas the buyer paid: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
             str(int(self.sellerconfirmed))
 
@@ -53,7 +53,7 @@ class UserModel(models.Model):
     
     user = models.OneToOneField(User)
     umbcid = models.CharField(max_length=7, primary_key=True)
-    rating = models.PositiveSmallIntegerField()
+    rating = models.PositiveSmallIntegerField(default=5)
     birth_date = models.DateField(null=True, blank=True)
     #choices=GENDER_CHOICES
     gender = models.CharField(max_length=8, blank=True)
