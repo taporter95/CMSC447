@@ -15,14 +15,6 @@ class Post(models.Model):
     status = models.CharField(max_length=20)
 
 class Transaction(models.Model):
-    '''
-    seller = models.ForeignKey(User, related_name='seller', on_delete=models.PROTECT)
-    buyer = models.ForeignKey(User, related_name='buyer', on_delete=models.PROTECT)
-    post = models.ForeignKey(Post, related_name='post', on_delete=models.PROTECT)
-    payment_type = models.CharField(max_length=20)
-    notes = models.CharField(max_length=200)
-    status = models.CharField(max_length=20)
-    '''
     seller = models.ForeignKey(User, related_name='seller')
     buyer = models.ForeignKey(User, related_name='buyer')
     post = models.ForeignKey(Post, related_name='post')
@@ -37,6 +29,26 @@ class Transaction(models.Model):
             "\Payment Method: " + str(self.payment_type) + \
             "\nHas the buyer paid: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
             str(int(self.sellerconfirmed))
+
+class CompleteTransaction(models.Model):
+    seller = models.CharField(max_length=200)
+    buyer = models.CharField(max_length=200)
+    postlabel = models.CharField(max_length=200)
+    payment_type = models.CharField(max_length=64) # Represents payment method i.e cash on delivery, barter, service..etc
+    buyerpaid = models.BooleanField(default=False)
+    sellerconfirmed = models.BooleanField(default=False)
+    notes = models.CharField(max_length=200)
+    status = models.CharField(max_length=20)
+
+    def __str__(self):
+    	return "\nSeller: " + str(self.seller) + \
+			"\nBuyer: " + str(self.buyer) + \
+			"\npostLabel: " + str(self.postlabel) + \
+            "\nPayment Method: " + str(self.payment_type) + \
+            "\nHas the buyer paid: " + str(self.buyerpaid) + "\nHas the seller confirmed: " + \
+            str(self.sellerconfirmed) + \
+			"\nNotes: " + str(self.notes) + \
+			"\nstatus: " + str(self.status)
 
 
     # TODO

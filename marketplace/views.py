@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 # , (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
-from .models import Post, Transaction, UserModel
+from .models import Post, Transaction, UserModel, CompleteTransaction
 import datetime
 import calendar
 import random
@@ -65,13 +65,12 @@ def create_user(request):
         messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
         return HttpResponseRedirect(reverse('new_user'))
        
-        '''
+        
     if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
         pass
     else:
         messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
         return HttpResponseRedirect(reverse('new_user'))
-        '''
 
     if request.POST['password'] != request.POST['repassword']:
         messages.add_message(request, messages.ERROR, 'Passwords do not match')
@@ -344,10 +343,15 @@ def view_transaction(request, transaction_id):
 
 @login_required(login_url='login_user')
 def relist_post(request, transaction_id):
-    transaction = get_object_or_404(Transaction, pk=transaction_id)
-    transaction.post.status = "active"
-    transaction.delete()
-    return HttpResponseRedirect(reverse('transactions'))
+	try:
+		transaction = get_object_or_404(Transaction, pk=transaction_id)
+	except:
+		return HttpResponseRedirect(reverse('home'))
+	transaction.post.status = "active"
+	t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False,status="active")
+	t.save()
+	transaction.delete()
+	return HttpResponseRedirect(reverse('transactions'))
 
 @login_required(login_url='login_user')
 def complete_transaction(request, transaction_id):
@@ -361,9 +365,11 @@ def complete_transaction(request, transaction_id):
         transaction.buyerpaid = True
        
     transaction.save() 
-    if transaction.sellerconfirmed == True and transaction.buyerpaid == True:   
-       transaction.delete()
-       post.delete()
+    if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
+		c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
+		c.save()  
+		transaction.delete()
+		post.delete()
 
     return HttpResponseRedirect(reverse('transactions'))
 
