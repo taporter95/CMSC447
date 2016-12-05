@@ -50,6 +50,7 @@ def authenticate_user(request):
             request.session['user_id'] = user.id
             return HttpResponseRedirect(reverse('home'))
     else:
+        messages.add_message(request, messages.ERROR, 'Invalid username or password')
         return render(request, 'registration/login.html')
 
 
@@ -348,7 +349,7 @@ def relist_post(request, transaction_id):
 	except:
 		return HttpResponseRedirect(reverse('home'))
 	transaction.post.status = "active"
-	t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False,status="active")
+	t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
 	t.save()
 	transaction.delete()
 	return HttpResponseRedirect(reverse('transactions'))
@@ -358,12 +359,17 @@ def complete_transaction(request, transaction_id):
     user = get_object_or_404(User, pk=request.session['user_id'])
     transaction = get_object_or_404(Transaction, pk=transaction_id)
     post = get_object_or_404(Post, pk=transaction.post.id)
-
+    sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
+    buyerstuff = get_object_or_404(UserModel, user=transaction.buyer)
     if user == transaction.seller:
         transaction.sellerconfirmed = True
+        buyerstuff.updateRating(int(request.POST['rating']))
+        buyerstuff.save()
     elif user == transaction.buyer:
         transaction.buyerpaid = True
-       
+        sellerstuff.updateRating(int(request.POST['rating']))
+        sellerstuff.save()
+
     transaction.save() 
     if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
 		c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 

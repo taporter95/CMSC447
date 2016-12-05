@@ -83,7 +83,7 @@ class UserModel(models.Model):
             return self.birth_date.strftime("%Y-%m-%d")
         else:
             return ""
-
+    
     def updateRating(self, rating):
         if rating > 5 or rating < 0:
             return -1

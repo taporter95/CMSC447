@@ -21,14 +21,16 @@
 	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Confirm Exchange</button></a>
   {% endif %}
   {% if user == transaction.buyer %}
-	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">Confirm exchange</button>
+  <!--
+	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>-->
   {% endif %}
   </br>
   </br>
-  {% if transaction.buyerpaid == True %}
+  {% if transaction.buyerpaid == True and user == transaction.seller %}
     <p>The buyer has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
   {% endif %}
-  {% if transaction.sellerconfirmed == True %}
+  {% if transaction.sellerconfirmed == True and user == transaction.buyer %}
     <p>The seller has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
   {% endif %}
 </div>
@@ -56,8 +58,53 @@
     </div> <!-- end modal-dialog -->
   </div> <!-- end modal -->
 
-
-
+  <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Please Rate This Transaction</h4>
+        </div>
+          <div class="modal-body">
+              <div>
+                <form action="{% url 'complete_transaction' transaction.id %}" method="post">
+                  {% csrf_token %}
+                  <div style="right: 50%;">
+                    <button id="one_star_button" style="background: transparent; border: none !important;" type="button">
+                      <span id="one_star" class="glyphicon glyphicon-star-empty" style="font-size: 2em"></span>
+                    </button>
+                    <button id="two_star_button" style="background: transparent; border: none !important;" type="button">
+                    <span id="two_star" class="glyphicon glyphicon-star-empty" style="font-size: 2em"></span>
+                    </button>
+                    <button id="three_star_button" style="background: transparent; border: none !important;" type="button">
+                    <span id="three_star" class="glyphicon glyphicon-star-empty" style="font-size: 2em"></span>
+                    </button>
+                    <button id="four_star_button" style="background: transparent; border: none !important;" type="button">
+                    <span id="four_star" class="glyphicon glyphicon-star-empty" style="font-size: 2em"></span>
+                    </button>
+                    <button id="five_star_button" style="background: transparent; border: none !important;" type="button">
+                    <span id="five_star" class="glyphicon glyphicon-star-empty" style="font-size: 2em"></span>
+                    </button>
+                  </div>
+                  </br>
+                  <input hidden id="check_one" type="radio" name="rating" value="1">
+                  <input hidden id="check_two" type="radio" name="rating" value="2">
+                  <input hidden id="check_three" type="radio" name="rating" value="3">
+                  <input hidden id="check_four" type="radio" name="rating" value="4">
+                  <input hidden id="check_five" type="radio" name="rating" value="5" checked="checked">
+                  <input class="btn btn-default" id="submit"  type="submit" value="Complete Transaction">
+                </form>
+              </div>
+          </div>
+          <!--<div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>-->
+      </div> <!-- end modal content -->
+    </div> <!-- end modal-dialog -->
+  </div> <!-- end modal -->
+<!--
+<span class="glyphicon glyphicon-star-empty"></span>
+-->
 {% endblock %}
 {% block miscjs %}
 <script type="text/javascript">
@@ -68,6 +115,47 @@
   $('#cancel_button').click(function() {
     $('#edit_form').toggle();
     $('#post_info').toggle();
+  });
+
+  $('#one_star_button').click(function() {
+    $('#one_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#two_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#three_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#four_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#five_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#check_one').prop("checked", true)
+  });
+  $('#two_star_button').click(function() {
+    $('#one_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#two_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#three_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#four_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#five_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#check_two').prop("checked", true)
+  });
+  $('#three_star_button').click(function() {
+    $('#one_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#two_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#three_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#four_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#five_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#check_three').prop("checked", true)
+  });
+  $('#four_star_button').click(function() {
+    $('#one_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#two_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#three_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#four_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#five_star').removeClass("glyphicon-star").addClass("glyphicon-star-empty")
+    $('#check_four').prop("checked", true)
+  });
+  $('#five_star_button').click(function() {
+    $('#one_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#two_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#three_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#four_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#five_star').removeClass("glyphicon-star-empty").addClass("glyphicon-star")
+    $('#check_five').prop("checked", true) 
   });
 </script>
 {% endblock %}
