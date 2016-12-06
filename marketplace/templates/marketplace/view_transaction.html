@@ -16,8 +16,11 @@
   </br>
   <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
   </br>
-
+	{% if user == transaction.buyer and not transaction.buyerpaid  or user == transaction.seller and not transaction.sellerconfirmed %}
   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">Confirm exchange</button>
+	{% else %}
+	<h4><b>Transaction already confirmed</b></h4>
+	{% endif %}
   <!--
 	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>-->
 

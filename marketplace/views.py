@@ -361,11 +361,11 @@ def complete_transaction(request, transaction_id):
     post = get_object_or_404(Post, pk=transaction.post.id)
     sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
     buyerstuff = get_object_or_404(UserModel, user=transaction.buyer) 
-    if user.pk == transaction.seller.pk:
+    if user.pk == transaction.seller.pk and transaction.sellerconfirmed == False:
         transaction.sellerconfirmed = True
         buyerstuff.updateRating(int(request.POST['rating']))
         buyerstuff.save()
-    if user.pk == transaction.buyer.pk:
+    if user.pk == transaction.buyer.pk and transaction.buyerpaid == False:
         transaction.buyerpaid = True
         sellerstuff.updateRating(int(request.POST['rating']))
         sellerstuff.save()
