@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 # , (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
-from .models import Post, Transaction, UserModel, CompleteTransaction
+from .models import Post, Transaction, UserModel
 import datetime
 import calendar
 import random
@@ -360,22 +360,22 @@ def complete_transaction(request, transaction_id):
     transaction = get_object_or_404(Transaction, pk=transaction_id)
     post = get_object_or_404(Post, pk=transaction.post.id)
     sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
-    buyerstuff = get_object_or_404(UserModel, user=transaction.buyer)
-    if user == transaction.seller:
+    buyerstuff = get_object_or_404(UserModel, user=transaction.buyer) 
+    if user.pk == transaction.seller.pk:
         transaction.sellerconfirmed = True
         buyerstuff.updateRating(int(request.POST['rating']))
         buyerstuff.save()
-    elif user == transaction.buyer:
+    if user.pk == transaction.buyer.pk:
         transaction.buyerpaid = True
         sellerstuff.updateRating(int(request.POST['rating']))
         sellerstuff.save()
 
     transaction.save() 
     if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
-		c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
-		c.save()  
-		transaction.delete()
+		#c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
+		#c.save()  
+		transaction.completed = True
 		post.delete()
-
+		#transaction.post = NULL
     return HttpResponseRedirect(reverse('transactions'))
 

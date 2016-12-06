@@ -17,14 +17,10 @@
   <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
   </br>
 
-  {% if user == transaction.seller %}
-	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Confirm Exchange</button></a>
-  {% endif %}
-  {% if user == transaction.buyer %}
   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">Confirm exchange</button>
   <!--
 	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>-->
-  {% endif %}
+
   </br>
   </br>
   {% if transaction.buyerpaid == True and user == transaction.seller %}
@@ -36,8 +32,7 @@
 </div>
 
 
-
-	<!--modal-->
+<!-----
 	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -51,13 +46,10 @@
                <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-primary">Re-list Post</button></a>
               </div>
           </div>
-          <!--<div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>-->
-      </div> <!-- end modal content -->
-    </div> <!-- end modal-dialog -->
-  </div> <!-- end modal -->
-
+      </div> 
+    </div> 
+  </div> 
+-->
   <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
