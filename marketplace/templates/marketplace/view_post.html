@@ -24,12 +24,15 @@
   </br>
   <p> Goods/Services accepted: {{ post.barter_type }} </p>
   </br>
-  <p> Seller: {{ post.user.first_name }} {{ post.user.last_name }} </p>
+  <p> Seller: <a href="{% url 'profile' post.user.id %}">{{ post.user.first_name }} {{ post.user.last_name }}</a> </p>
   </br>
   {% if user != post.user %}
     <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
   {% endif %}
+  {% if user == post.user %}
   <button id="edit_button" class="btn btn-primary">Edit</button>
+  <a href="{% url 'delete_post' post.id %}"><button class="btn btn-danger">Delete</button></a>
+  {% endif %}
 </div>
 <div hidden id="edit_form" class="col-md-6">
   <form id="post_form" action="{% url 'update_post' post.id%}" method="post" enctype="multipart/form-data">

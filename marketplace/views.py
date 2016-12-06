@@ -199,8 +199,14 @@ def search_results(request):
 
 
 @login_required(login_url='login_user')
-def profile(request):
+def profile(request, user_id):
+    current_profile = get_object_or_404(User, pk=user_id)
     user = get_object_or_404(User, pk=request.session['user_id'])
+    actual = user
+
+    if current_profile != user:
+        user = current_profile
+
     try:
         userstuff = UserModel.objects.get(user=user)
     except:
@@ -221,7 +227,7 @@ def profile(request):
     edit = request.GET.get('edit')
     ratingcounter = range(0, userstuff.rating)
     missing = range(0, 5 - userstuff.rating)
-    context = {'user': user, 'userstuff': userstuff, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
+    context = {'user': user, 'actual': actual, 'userstuff': userstuff, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
     return render(request, 'marketplace/profile.html', context)
 
 
@@ -241,7 +247,7 @@ def update_profile(request):
 
     user.save()
     userstuff.save()
-    return HttpResponseRedirect(reverse('profile'))
+    return HttpResponseRedirect(reverse('profile', args=(user.id, )))
 
 
 @login_required(login_url='login_user')
@@ -305,7 +311,7 @@ def delete_post(request, post_id):
     user = get_object_or_404(User, pk=request.session['user_id'])
     posts = Post.objects.filter(user=user)
     context = {'user': user, 'posts':posts}
-    return HttpResponseRedirect(reverse('profile'))
+    return HttpResponseRedirect(reverse('profile', args=(user.id, )))
 
 
 @login_required(login_url='login_user')
@@ -329,8 +335,8 @@ def buy(request, post_id):
 @login_required(login_url='login_user')
 def transactions(request):
     user = get_object_or_404(User, pk=request.session['user_id'])
-    purchased = Transaction.objects.filter(buyer=user)
-    sold = Transaction.objects.filter(seller=user) 
+    purchased = Transaction.objects.filter(buyer=user, completed=False)
+    sold = Transaction.objects.filter(seller=user, completed=False) 
     context = {'purchased': purchased, 'sold': sold}
     return render(request, 'marketplace/transactions.html', context)
 
@@ -349,8 +355,8 @@ def relist_post(request, transaction_id):
 	except:
 		return HttpResponseRedirect(reverse('home'))
 	transaction.post.status = "active"
-	t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
-	t.save()
+	#t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
+	#t.save()
 	transaction.delete()
 	return HttpResponseRedirect(reverse('transactions'))
 

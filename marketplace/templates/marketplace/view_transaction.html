@@ -3,8 +3,10 @@
 {% block content %}
 
 <div id="post_info" class="col-md-6">
-  <h3 id="subject"> {{post.subject}} </h3>
+  
   <div class="panel-body">
+  <h3 id="subject"> {{post.subject}} </h3>
+  </br>
   <p>Description:</p>
   <p>{{ post.description }}</p>
   </br>
@@ -17,20 +19,23 @@
   <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
   </br>
 	{% if user == transaction.buyer and not transaction.buyerpaid  or user == transaction.seller and not transaction.sellerconfirmed %}
-  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal2">Confirm exchange</button>
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Confirm exchange</button>
 	{% else %}
 	<h4><b>Transaction already confirmed</b></h4>
 	{% endif %}
+  {% if user == transaction.seller %}
+  <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-primary">Re-list Post</button></a>
+  {% endif %}
   <!--
 	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>-->
 
   </br>
   </br>
   {% if transaction.buyerpaid == True and user == transaction.seller %}
-    <p>The buyer has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
+    <p>The buyer has confirmed that the exchange has taken place, if this is true please select "Confirm Exchange" to complete the transaction</p>
   {% endif %}
   {% if transaction.sellerconfirmed == True and user == transaction.buyer %}
-    <p>The seller has confirmed that the exchange has take place, if this is true please select "Confirm Exchange" to complete the transaction</p>
+    <p>The seller has confirmed that the exchange has taken place, if this is true please select "Confirm Exchange" to complete the transaction</p>
   {% endif %}
 </div>
 
@@ -53,7 +58,7 @@
     </div> 
   </div> 
 -->
-  <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
