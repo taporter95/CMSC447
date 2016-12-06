@@ -13,7 +13,7 @@
                 {% if form.errors %}
                     <p class="errortext">Your username and password didn't match. Please try again.</p>
                 {% endif %}
-                <form role="form"  method="post" action="{% url 'authenticate_user' %}" class="form-signin">
+                <form id="login_form" role="form" method="post" action="{% url 'authenticate_user' %}" class="form-signin">
                     {% csrf_token %}
 					<input type="hidden" name="next" value="{{ next }}" />
                     <fieldset>
@@ -27,14 +27,42 @@
                         <input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign In" />
                     </fieldset>
                 </form>
+                
+                <form hidden id="new_user_form" action="{% url 'create_user' %}" method="post">
+                    {% csrf_token %}
+                    </br>
+                    <label for="first">First*</label>
+                    <input class="form-control" type="text" id="first" name="first">
+                    <label for="last">Last*</label>
+                    <input class="form-control" type="text" id="last"  name="last">
+                    <label for="umbcid">Umbc Id*</label>
+                    <input class="form-control" type="text" id="umbcid" name="umbcid">
+                    </br>
+                    <label for="email">Email*</label>
+                    <input class="form-control" id="email" name="email">
+                    </br>
+                    <label for="password">Password*</label>
+                    <input class="form-control" rows="3" id="password" name="password" type="password"></input>
+                    <label for="repassword">Confirm Password*</label>
+                    <input class="form-control" rows="3" id="repassword" name="repassword" type="password"></input>
+                    </br>
+                    <input class="btn btn-primary" id="submit"  type="submit" value="Submit"/>
+                    <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">
+                </form>
+
                 </br>
                 <form role="form" method="post" action="{% url 'new_user' %}">
                     {% csrf_token %}
-                    <input type="submit" class="btn btn-lg btn-primary btn-block" value="Register" />
+                    <input id="register_button" type="reset" class="btn btn-lg btn-primary btn-block" value="Register" />
                     
                 </form>
 
             </div>
+                {% if messages %}
+                    {% for message in messages %}
+                        <h5{% if message.tags %} class="{{ message.tags }}"{% endif %}><font color="red">{{ message }}</font></h5>
+                    {% endfor %}
+                {% endif %}
         </div>
     </div>
 </div>
@@ -44,4 +72,18 @@
     </div>
 </div>
 
+{% endblock %}
+{% block miscjs %}
+<script type="text/javascript">
+  $('#register_button').click(function() {
+    $('#login_form').toggle();
+    $('#new_user_form').toggle();
+    $('#register_button').toggle();
+  });
+  $('#cancel_button').click(function() {
+    $('#login_form').toggle();
+    $('#new_user_form').toggle();
+    $('#register_button').toggle();
+  });
+</script>
 {% endblock %}
