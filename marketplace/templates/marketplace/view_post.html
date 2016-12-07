@@ -2,14 +2,14 @@
 
 {% block content %}
 
-<div id="post_info" class="col-md-6">
-  <h3 id="subject"> {{post.subject}} </h3>
+<div id="post_info" class="col-md-6" itemscope itemtype="http://schema.org/Product">
+  <h3 id="subject" itemprop="name"> {{post.subject}} </h3>
   <div class="panel-body">
       <div class="media">
         <div class="media-left">
           <a href="#">
           {% if post.image %}
-            <img class="media-object" style="height: 100px; width: 100px;" src="{{post.image.url}}" alt="...">
+            <img itemprop="image" class="media-object" style="height: 100px; width: 100px;" src="{{post.image.url}}" alt="...">
           {% endif %}
           </a>
         </div>
@@ -18,13 +18,18 @@
       </div>
     </div>
   <p>Description:</p>
-  <p>{{ post.description }}</p>
+  <p itemprop="description">{{ post.description }}</p>
   </br>
-  <p> Cost: {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </p>
+  <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+    <link itemprop="acceptedPaymentMethod" rel="http://purl.org/goodrelations/v1#COD">
+    <link itemprop="availability" href="http://schema.org/InStock">
+    <span class="hidden" itemprop="priceCurrency" content="USD"></span>
+    <p> Cost: {% if post.cost == 0 %} <span itemprop="price" content="0">Free</span> {% else %} $<span itemprop="price">{{ post.cost }}</span> {% endif %} </p>
+    </br>
+    <p> Goods/Services accepted: {{ post.barter_type }} </p>
+  </div>
   </br>
-  <p> Goods/Services accepted: {{ post.barter_type }} </p>
-  </br>
-  <p> Seller: <a href="{% url 'profile' post.user.id %}">{{ post.user.first_name }} {{ post.user.last_name }}</a> </p>
+  <p itemscope itemtype="http://schema.org/Person" itemprop="offeredBy"> Seller: <a href="{% url 'profile' post.user.id %}" itemprop="name">{{ post.user.first_name }} {{ post.user.last_name }}</a> </p>
   </br>
   {% if user != post.user %}
     <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary">Buy</button></a>
