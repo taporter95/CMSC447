@@ -4,7 +4,7 @@
 <div class="col-md-5"> 
   <p>Your purchased items</p>
   <div class="well">  
-    {% if posts.count == 0 %}
+    {% if purchased.count == 0 %}
       <p style="text-align: center;">There are no posts</p>
     {% endif %}   
   		{% for transaction in purchased %}
@@ -54,7 +54,7 @@
 <div class="col-md-5 col-md-offset-2">
   <p>your sold items</p>
   <div class="well">  
-    {% if posts.count == 0 %}
+    {% if sold.count == 0 %}
       <p style="text-align: center;">There are no posts</p>
     {% endif %}   
       {% for transaction in sold %}

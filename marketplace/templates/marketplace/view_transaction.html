@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div id="post_info" class="col-md-6">
+<div id="post_info" class="col-md-6 well">
   
   <div class="panel-body">
   <h3 id="subject"> {{post.subject}} </h3>
@@ -14,10 +14,18 @@
   </br>
   <p> Payment type: {{ post.barter_type }} </p>
   </br>
-  <p> Seller: {{ transaction.seller.first_name }} {{ transaction.seller.last_name }} </p>
+  {% if user == transaction.buyer %}
+  <p> Seller: <a href="{% url 'profile' transaction.seller.id %}">{{ transaction.seller.first_name }} {{ transaction.seller.last_name }}</a></p>
   </br>
-  <p> Buyer: {{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</p>
+  <p> Seller email: {{transaction.seller.email}}</p>
   </br>
+  {% endif %}
+  {% if user == transaction.seller %}
+  <p> Buyer: <a href="{% url 'profile' transaction.buyer.id %}">{{transaction.buyer.first_name}} {{transaction.buyer.last_name}}</a></p>
+  </br>
+  <p> Buyer email: {{transaction.buyer.email}} </p>
+  </br>
+  {% endif %}
 	{% if user == transaction.buyer and not transaction.buyerpaid  or user == transaction.seller and not transaction.sellerconfirmed %}
   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Confirm exchange</button>
 	{% else %}

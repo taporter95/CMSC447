@@ -2,7 +2,8 @@
 
 {% block content %}
 
-<div class="col-md-6" itemscope itemtype="http://schema.org/Product">
+<div class="col-md-6 well" itemscope itemtype="http://schema.org/Product">
+  <a href="{% url 'view_post' post.id %}"><span class="glyphicon glyphicon-chevron-left"></span> Back</a>
   <h3 itemprop="name">{{ post.subject }}</h3>
 	<div class="panel-body">
       <div class="media">
@@ -45,7 +46,6 @@
 	  </br>
 	  <input class="btn btn-primary" id="submit_button"  type="submit" value="Buy"/>     
 	</form>
-	<a href="{% url 'home' %}"><button class="btn btn-default">cancel</button></a>
 </div>
 
     

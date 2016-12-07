@@ -35,26 +35,24 @@
   <div id="user_info" itemscope itemtype="http://schema.org/Person">
     <h3 id="subject"> Profile </h3>
     </br>
-    <p itemprop="givenName"> {{ user.first_name }} </p>
+    <p itemprop="name"> Name: {{ user.first_name }} {{ user.last_name }} </p>
     </br>
-    <p itemprop="familyName"> {{ user.last_name }} </p> 
-    </br>
-    <p itemprop="email"> {{ user.email }} </p>
+    <p itemprop="email"> Email: {{ user.email }} </p>
     {% if user == actual %}
     </br>
-    <p> {{ userstuff.umbcid }} </p>
+    <p> ID: {{ userstuff.umbcid }} </p>
     {% endif %}
     </br>
     {% if userstuff.location %}
-    <p itemprop="address"> {{ userstuff.location }} </p>
+    <p itemprop="address"> Location: {{ userstuff.location }} </p>
     </br>
     {% endif %}
     {% if userstuff.birth_date %}
-    <p><time itemprop="birthDate" datetime="{{ userstuff.getDateForHTML }}"> {{ userstuff.birth_date }} </time></p>
+    <p><time itemprop="birthDate" datetime="{{ userstuff.getDateForHTML }}"> Birthday: {{ userstuff.birth_date }} </time></p>
     </br>
     {% endif %}
     {% if userstuff.gender %}
-    <p itemprop="gender"> {{ userstuff.gender }} </p>
+    <p itemprop="gender"> Gender: {{ userstuff.gender }} </p>
     </br>    
     {% endif %}
     <div itemscope itemtype="http://schema.org/AggregateRating">
@@ -69,8 +67,9 @@
     </br>
     </br>
     {% if user == actual %}
+    
     <button id="edit_button" class="btn btn-default btn-sm">Edit Profile</button>
-    <a href="{% url 'delete_account' %}"><button class="btn btn-danger btn-sm">Delete Account</button></a>
+    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#myModal">Delete Account</button>
     </br>
     </br>
     <a href="{% url 'transactions' %}"><button class="btn btn-default btn-sm">Pending Transactions</button></a>
@@ -135,7 +134,21 @@
   {% endif %}
   </div>
 </div> 
-	
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Are you sure?</h4>
+      </div>
+      <div class="modal-body">
+        <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">Cancel</button>
+        <a href="{% url 'delete_account' %}"><button class="btn btn-danger btn-sm">Delete Account</button></a>
+      </div>
+    </div> 
+  </div> 
+</div> 
 	
 {% endblock %}
 {% block miscjs %}

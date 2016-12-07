@@ -39,7 +39,7 @@
   <a href="{% url 'delete_post' post.id %}"><button class="btn btn-danger">Delete</button></a>
   {% endif %}
 </div>
-<div hidden id="edit_form" class="col-md-6">
+<div hidden id="edit_form" class="col-md-6 well">
   <form id="post_form" action="{% url 'update_post' post.id%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     </br>
