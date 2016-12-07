@@ -1,7 +1,7 @@
 {% extends "base2.html" %}
 
 {% block content %}
-<div class="col-md-4">
+<div class="col-md-3 well">
   <form hidden id="post_form" action="{% url 'update_profile' %}" method="post">
     {% csrf_token %}
     </br>
@@ -76,7 +76,7 @@
   </div>
 </div>
 
-<div class="col-md-8 well">
+<div class="col-md-8 col-md-offset-1 well">
   {% if posts.count == 0 %}
     <p style="text-align: center;">Your posts will show up here</p>
   {% endif %}   

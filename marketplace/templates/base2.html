@@ -5,6 +5,24 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
+    <style type="text/css">
+        .body-style {
+            background-color: #f3c241;
+        }
+        .container {
+            
+        }
+        .container-fluid {
+            background-color: black;
+        }
+        .nav-selection {
+            color: #f3c241;
+        }
+        .search-area {
+            background-color: black;
+        }
+
+    </style>
     <title>{% block title %}{% endblock %}</title>
 
     <!-- Bootsrap CSS -->
@@ -21,12 +39,12 @@
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand">Retriever Market</a>
+                <a class="navbar-brand nav-selection">Retriever Market</a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'profile' user.id %}">Profile</a></li>
+                    <li class="nav-selection"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="nav-selection"><a href="{% url 'profile' user.id %}">Profile</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="{% url 'logout_user' %}">Logout</a></li>
@@ -36,7 +54,7 @@
     </nav>
     
 </head>
-<body>
+<body class="body-style">
 	<div class="container">
         <div class="base-template">
             {% block content %}
