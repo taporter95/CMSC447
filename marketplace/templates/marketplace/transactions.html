@@ -13,18 +13,13 @@
                 <span style="float:right;">
                     <a href="{% url 'view_transaction' transaction.id %}"><button class="btn btn-primary btn-xs">View</button></a>
                 </span>
-
-                <h3 class="panel-title">{{ transaction.post.subject }}</h3>
+                <h3 class="panel-title">{{ transaction.post.subject }} </h3>
+                
             </div>
             <div class="panel-body">
-              <div class="media">
-                <div class="media-left">
-                  
-                </div>
-                <div class="media-body">
-                  <p></p>
-                </div>
-              </div>
+              {% if transaction.buyer_read == False %} <p style="color: red"> - Unread</p> {% endif %}
+              {% if transaction.sellerconfirmed == True %} <p> - The seller has confirmed this transaction</p> {% endif %}
+              {% if transaction.buyerpaid == True %} <p> - You have confirmed this transaction, waiting on seller</p> {% endif %}
             </div>
         </div>
       {% endfor %}
@@ -71,14 +66,9 @@
                 <h3 class="panel-title">{{ transaction.post.subject }}</h3>
             </div>
             <div class="panel-body">
-              <div class="media">
-                <div class="media-left">
-                  
-                </div>
-                <div class="media-body">
-                  <p></p>
-                </div>
-              </div>
+              {% if transaction.seller_read == False %} <p style="color: red"> - Unread</p> {% endif %}
+              {% if transaction.buyerpaid == True %} <p> - The buyer has confirmed this transaction</p> {% endif %}
+              {% if transaction.sellerconfirmed == True %} <p> - You have confirmed this transaction, waiting on buyer</p> {% endif %}
             </div>
         </div>
       {% endfor %}

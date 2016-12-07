@@ -16,90 +16,97 @@ import random
 import re
 
 
-# Create your views here.
+	# Create your views here.
+def get_unread(user):
+
+	set_1 = Transaction.objects.filter(buyer=user, completed=False, buyer_read=False).count()
+	set_2 = Transaction.objects.filter(seller=user, completed=False, seller_read=False).count()
+	
+	return set_1 + set_2
+
 @login_required(login_url='login_user')
 def redirect(request):
-    return HttpResponseRedirect('/')
+	return HttpResponseRedirect('/')
 
 
 def login_user(request):
-    return render(request, 'registration/login.html')
+	return render(request, 'registration/login.html')
 
 
 @login_required(login_url='login_user')
 def logout_user(request):
-    logout(request)
-    return HttpResponseRedirect('/')
+	logout(request)
+	return HttpResponseRedirect('/')
 
 
 def authenticate_user(request):
-    username = request.POST['username']
-    password = request.POST['password']
-    user = authenticate(username=username, password=password)
+	username = request.POST['username']
+	password = request.POST['password']
+	user = authenticate(username=username, password=password)
 
-    if user is not None:
-        # Don't let user log in if they're banned
-        userstuff = UserModel.objects.get(user=user)
-        if userstuff is None:
-            return render(request, 'registration/login.html')
-        elif userstuff.banned:
-            messages.add_message(request, messages.ERROR, 'You have been banned from this site.')
-            return render(request, 'registration/login.html')
-        else:
-            login(request, user)
-            request.session['user_id'] = user.id
-            return HttpResponseRedirect(reverse('home'))
-    else:
-        messages.add_message(request, messages.ERROR, 'Invalid username or password')
-        return render(request, 'registration/login.html')
+	if user is not None:
+	    # Don't let user log in if they're banned
+	    userstuff = UserModel.objects.get(user=user)
+	    if userstuff is None:
+	        return render(request, 'registration/login.html')
+	    elif userstuff.banned:
+	        messages.add_message(request, messages.ERROR, 'You have been banned from this site.')
+	        return render(request, 'registration/login.html')
+	    else:
+	        login(request, user)
+	        request.session['user_id'] = user.id
+	        return HttpResponseRedirect(reverse('home'))
+	else:
+	    messages.add_message(request, messages.ERROR, 'Invalid username or password')
+	    return render(request, 'registration/login.html')
 
 
-# TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
+	# TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
 def new_user(request):
-    return render(request, 'registration/new_user.html')
+	return render(request, 'registration/new_user.html')
 
 
 def create_user(request):
-    if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
-        pass
-    else:
-        messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
-        return HttpResponseRedirect(reverse('new_user'))
-       
-        
-    if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
-        pass
-    else:
-        messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
-        return HttpResponseRedirect(reverse('new_user'))
+	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
+	    pass
+	else:
+	    messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
+	    return HttpResponseRedirect(reverse('new_user'))
+	   
+	    
+	if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
+	    pass
+	else:
+	    messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
+	    return HttpResponseRedirect(reverse('new_user'))
 
-    if request.POST['password'] != request.POST['repassword']:
-        messages.add_message(request, messages.ERROR, 'Passwords do not match')
-        return HttpResponseRedirect(reverse('new_user'))
+	if request.POST['password'] != request.POST['repassword']:
+	    messages.add_message(request, messages.ERROR, 'Passwords do not match')
+	    return HttpResponseRedirect(reverse('new_user'))
 
-    try:
-        User.objects.get(username=request.POST['email'])
-    except ObjectDoesNotExist:
-        new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
-        new_user.last_name = request.POST['last']
-        new_user.save()
-        really_new_user = UserModel(user=new_user, umbcid=request.POST['umbcid'], rating=5)
-        really_new_user.save()
+	try:
+	    User.objects.get(username=request.POST['email'])
+	except ObjectDoesNotExist:
+	    new_user = User.objects.create_user(first_name=request.POST['first'], username=request.POST['email'], email=request.POST['email'], password=request.POST['password'])
+	    new_user.last_name = request.POST['last']
+	    new_user.save()
+	    really_new_user = UserModel(user=new_user, umbcid=request.POST['umbcid'], rating=5)
+	    really_new_user.save()
 
-        user = authenticate(username=request.POST['email'], password=request.POST['password'])
-        login(request, user)
-        request.session['user_id'] = user.id
-        return HttpResponseRedirect(reverse('home'))
-    messages.add_message(request, messages.ERROR, 'User is already registered for this email')
-    return HttpResponseRedirect(reverse('new_user'))
+	    user = authenticate(username=request.POST['email'], password=request.POST['password'])
+	    login(request, user)
+	    request.session['user_id'] = user.id
+	    return HttpResponseRedirect(reverse('home'))
+	messages.add_message(request, messages.ERROR, 'User is already registered for this email')
+	return HttpResponseRedirect(reverse('new_user'))
 
 
 @login_required(login_url='login_user')
 def delete_account(request):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    logout(request)
-    user.delete()
-    return HttpResponseRedirect('/')
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	logout(request)
+	user.delete()
+	return HttpResponseRedirect('/')
 
 
 @login_required(login_url='login_user')
@@ -114,7 +121,7 @@ def home(request):
 		logout(request)
 		HttpResponseRedirect('/login')
 	posts = Post.objects.filter(status="active")
-	
+
 	post_paginator = Paginator(posts, 5)
 
 	page = request.GET.get('page')
@@ -126,227 +133,244 @@ def home(request):
 	except EmptyPage:
 		post_page = post_paginator.page(post_paginator.num_pages)
 
-	context = {'user': user, 'post_page': post_page, 'posts': posts}
+	unread = get_unread(user)
+
+	context = {'user': user, 'unread': unread, 'post_page': post_page, 'posts': posts}
 	return render(request, 'marketplace/home.html', context)
 
 @login_required(login_url='login_user')
 def search_results(request):
-    user = get_object_or_404(User, pk=request.session['user_id'])
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	unread = get_unread(user)
 
-    try:
-        good = request.POST['good']
-    except:
-    	good = "off"
+	try:
+	    good = request.POST['good']
+	except:
+		good = "off"
 
-    try:
-    	service = request.POST['service']
-    except:
-    	service = "off"
+	try:
+		service = request.POST['service']
+	except:
+		service = "off"
 
-    if (good == "on" and service == "on") or (good == "off" and service == "off" ):
-    	filter_type = "both"
-    else:
-    	if good == "on":
-    		filter_type = "good"
-    	else:
-    		filter_type = "service"
+	if (good == "on" and service == "on") or (good == "off" and service == "off" ):
+		filter_type = "both"
+	else:
+		if good == "on":
+			filter_type = "good"
+		else:
+			filter_type = "service"
 
-    try:
-    	limit = float(request.POST['limit'])
-    except:
-    	limit = float(100000000)
+	try:
+		limit = float(request.POST['limit'])
+	except:
+		limit = float(100000000)
 
-    try:
+	try:
 
-    	if request.POST['free']:
-    		try:
-    			if filter_type == "both":
-    				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0)
-    			else:
-    				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type)
-    		except:
-    			if filter_type == "both":
-    				posts = Post.objects.all().filter(cost=0)
-    			else:
-    				posts = Post.objects.all().filter(cost=0, post_type=filter_type)
-    except:
-    	try:
-    		if filter_type == "both":
-    			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit)
-    		else:
-    			posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type)
+		if request.POST['free']:
+			try:
+				if filter_type == "both":
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, status="active")
+				else:
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type, status="active")
+			except:
+				if filter_type == "both":
+					posts = Post.objects.all().filter(cost=0, status="active")
+				else:
+					posts = Post.objects.all().filter(cost=0, post_type=filter_type, status="active")
+	except:
+		try:
+			if filter_type == "both":
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, status="active")
+			else:
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type, status="active")
 
-    	except:
-    		if filter_type == "both":
-    			posts = Post.objects.all().filter(cost__lte=limit)
-    		else:
-    			posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type) 
+		except:
+			if filter_type == "both":
+				posts = Post.objects.all().filter(cost__lte=limit, status="active")
+			else:
+				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type, status="active") 
 
 
-    post_paginator = Paginator(posts, 5)
+	post_paginator = Paginator(posts, 5)
 
-    page = request.GET.get('page')
+	page = request.GET.get('page')
 
-    try:
-    	post_page = post_paginator.page(page)
-    except PageNotAnInteger:
-    	post_page = post_paginator.page(1)
-    except EmptyPage:
-    	post_page = post_paginator.page(post_paginator.num_pages)
+	try:
+		post_page = post_paginator.page(page)
+	except PageNotAnInteger:
+		post_page = post_paginator.page(1)
+	except EmptyPage:
+		post_page = post_paginator.page(post_paginator.num_pages)
 
-    context = {'post_page': post_page, 'posts': posts, 'user': user}
-    return render(request, 'marketplace/search_results.html', context)
+	context = {'post_page': post_page, 'unread': unread, 'posts': posts, 'user': user}
+	return render(request, 'marketplace/search_results.html', context)
 
 
 @login_required(login_url='login_user')
 def profile(request, user_id):
-    current_profile = get_object_or_404(User, pk=user_id)
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    actual = user
+	current_profile = get_object_or_404(User, pk=user_id)
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	actual = user
 
-    if current_profile != user:
-        user = current_profile
+	if current_profile != user:
+	    user = current_profile
 
-    try:
-        userstuff = UserModel.objects.get(user=user)
-    except:
-        return HttpResponse("<html>Shouldnt hit here database needs to be redone.</html>")
+	unread = get_unread(actual)
 
-    posts = Post.objects.filter(user=user)
+	try:
+	    userstuff = UserModel.objects.get(user=user)
+	except:
+	    return HttpResponse("<html>Shouldnt hit here database needs to be redone.</html>")
 
-    post_paginator = Paginator(posts, 5)
-    page = request.GET.get('page')
+	posts = Post.objects.filter(user=user, status="active")
 
-    try:
-        post_page = post_paginator.page(page)
-    except PageNotAnInteger:
-        post_page = post_paginator.page(1)
-    except EmptyPage:
-        post_page = post_paginator.page(post_paginator.num_pages)
+	post_paginator = Paginator(posts, 5)
+	page = request.GET.get('page')
 
-    edit = request.GET.get('edit')
-    ratingcounter = range(0, userstuff.rating)
-    missing = range(0, 5 - userstuff.rating)
-    context = {'user': user, 'actual': actual, 'userstuff': userstuff, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
-    return render(request, 'marketplace/profile.html', context)
+	try:
+	    post_page = post_paginator.page(page)
+	except PageNotAnInteger:
+	    post_page = post_paginator.page(1)
+	except EmptyPage:
+	    post_page = post_paginator.page(post_paginator.num_pages)
+
+	edit = request.GET.get('edit')
+	ratingcounter = range(0, userstuff.rating)
+	missing = range(0, 5 - userstuff.rating)
+	context = {'user': user, 'actual': actual, 'unread': unread, 'userstuff': userstuff, 'post_page': post_page, 'posts': posts, 'edit': edit, 'ratingcounter': ratingcounter, 'missing': missing}
+	return render(request, 'marketplace/profile.html', context)
 
 
 @login_required(login_url='login_user')
 def update_profile(request):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    userstuff = get_object_or_404(UserModel, user=user)
-    user.first_name = request.POST.get('first')
-    user.last_name = request.POST.get('last')
-    user.email = request.POST.get('email')
-    if request.POST.get('birthday'):
-        userstuff.birth_date = request.POST.get('birthday')
-    else:
-        userstuff.birth_date = None
-    userstuff.gender = request.POST.get('gender')
-    userstuff.location = request.POST.get('location')
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	userstuff = get_object_or_404(UserModel, user=user)
+	user.first_name = request.POST.get('first')
+	user.last_name = request.POST.get('last')
+	user.email = request.POST.get('email')
+	if request.POST.get('birthday'):
+	    userstuff.birth_date = request.POST.get('birthday')
+	else:
+	    userstuff.birth_date = None
+	userstuff.gender = request.POST.get('gender')
+	userstuff.location = request.POST.get('location')
 
-    user.save()
-    userstuff.save()
-    return HttpResponseRedirect(reverse('profile', args=(user.id, )))
+	user.save()
+	userstuff.save()
+	return HttpResponseRedirect(reverse('profile', args=(user.id, )))
 
 
 @login_required(login_url='login_user')
 def create_post(request):
 
-    flag = 0;
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], status="active", creation_date = timezone.now())
-    
-    if len(request.POST['subject']) == 0:
-        flag = 1;
-        messages.add_message(request, messages.ERROR, 'Post Failed: Subject is a required field')
-    else:
-        new_post.subject = request.POST['subject']
+	flag = 0;
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	new_post = Post(user = user, description = request.POST['description'], post_type = request.POST['type'], status="active", creation_date = timezone.now())
 
-    try:
-        new_post.cost = float(request.POST['cost'])
-    except:
-        flag = 1;
-        messages.add_message(request, messages.ERROR, 'Post Failed: Invalid price entry')
+	if len(request.POST['subject']) == 0:
+	    flag = 1;
+	    messages.add_message(request, messages.ERROR, 'Post Failed: Subject is a required field')
+	else:
+	    new_post.subject = request.POST['subject']
 
-    if flag:
-        HttpResponseRedirect(reverse('home'))
+	try:
+	    new_post.cost = float(request.POST['cost'])
+	except:
+	    flag = 1;
+	    messages.add_message(request, messages.ERROR, 'Post Failed: Invalid price entry')
 
-    try:
-        new_post.image = request.FILES['image']
-    except:
-        pass
+	if flag:
+	    HttpResponseRedirect(reverse('home'))
 
-    new_post.post_type = request.POST['type']
-    new_post.barter_type = request.POST['barter']
+	try:
+	    new_post.image = request.FILES['image']
+	except:
+	    pass
 
-    new_post.save()
-    return HttpResponseRedirect(reverse('home'))
+	new_post.post_type = request.POST['type']
+	new_post.barter_type = request.POST['barter']
+
+	new_post.save()
+	return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
 def view_post(request, post_id):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    post = get_object_or_404(Post, pk=post_id)
-    seller = post.user
-    context = {'post': post, 'seller': seller, 'user': user}
-    return render(request, 'marketplace/view_post.html', context)
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	unread = get_unread(user)
+	post = get_object_or_404(Post, pk=post_id)
+	seller = post.user
+	context = {'post': post, 'unread': unread, 'seller': seller, 'user': user}
+	return render(request, 'marketplace/view_post.html', context)
 
 @login_required(login_url='login_user')
 def update_post(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    post.subject = request.POST['subject']
-    post.description = request.POST['description']
-    post.cost = float(request.POST['cost'])
-    try:
-        post.image = request.FILES['image']
-    except:
-        pass
-    post.save()
-    return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
+	post = get_object_or_404(Post, pk=post_id)
+	post.subject = request.POST['subject']
+	post.description = request.POST['description']
+	post.cost = float(request.POST['cost'])
+	try:
+	    post.image = request.FILES['image']
+	except:
+	    pass
+	post.save()
+	return HttpResponseRedirect(reverse('view_post', args=(post.id, )))
 
 @login_required(login_url='login_user')
 def delete_post(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    post.delete()
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    posts = Post.objects.filter(user=user)
-    context = {'user': user, 'posts':posts}
-    return HttpResponseRedirect(reverse('profile', args=(user.id, )))
+	post = get_object_or_404(Post, pk=post_id)
+	post.delete()
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	posts = Post.objects.filter(user=user)
+	context = {'user': user, 'posts':posts}
+	return HttpResponseRedirect(reverse('profile', args=(user.id, )))
 
 
 @login_required(login_url='login_user')
 def checkout(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    context = {'post': post}
-    return render(request, 'marketplace/checkout.html', context)
+	post = get_object_or_404(Post, pk=post_id)
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	unread = get_unread(user)
+	context = {'post': post, 'unread': unread}
+	return render(request, 'marketplace/checkout.html', context)
 
 
 @login_required(login_url='login_user')
 def buy(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
-    post.status = "pending"
-    buyer = get_object_or_404(User, pk=request.session['user_id'])
-    seller = post.user
-    new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
-    new_transaction.save()
-    post.save() 
-    return HttpResponseRedirect(reverse('home'))
+	post = get_object_or_404(Post, pk=post_id)
+	post.status = "pending"
+	buyer = get_object_or_404(User, pk=request.session['user_id'])
+	seller = post.user
+	new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
+	new_transaction.save()
+	post.save() 
+	return HttpResponseRedirect(reverse('home'))
 
 @login_required(login_url='login_user')
 def transactions(request):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    purchased = Transaction.objects.filter(buyer=user, completed=False)
-    sold = Transaction.objects.filter(seller=user, completed=False) 
-    context = {'purchased': purchased, 'sold': sold}
-    return render(request, 'marketplace/transactions.html', context)
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	unread = get_unread(user)
+	purchased = Transaction.objects.filter(buyer=user, completed=False)
+	sold = Transaction.objects.filter(seller=user, completed=False) 
+	context = {'purchased': purchased, 'sold': sold, 'unread': unread} 
+	return render(request, 'marketplace/transactions.html', context)
 
 @login_required(login_url='login_user')
 def view_transaction(request, transaction_id):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    transaction = get_object_or_404(Transaction, pk=transaction_id)
-    post = transaction.post
-    context = {'transaction': transaction, 'post': post, 'user': user}
-    return render(request, 'marketplace/view_transaction.html', context)
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	transaction = get_object_or_404(Transaction, pk=transaction_id)
+	
+	if user == transaction.seller:
+		transaction.seller_read = True
+	else:
+		transaction.buyer_read = True
+
+	transaction.save()
+	unread = get_unread(user)
+	post = transaction.post
+	context = {'transaction': transaction, 'post': post, 'user': user, 'unread': unread}
+	return render(request, 'marketplace/view_transaction.html', context)
 
 @login_required(login_url='login_user')
 def relist_post(request, transaction_id):
@@ -354,7 +378,9 @@ def relist_post(request, transaction_id):
 		transaction = get_object_or_404(Transaction, pk=transaction_id)
 	except:
 		return HttpResponseRedirect(reverse('home'))
+
 	transaction.post.status = "active"
+	transaction.post.save()
 	#t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
 	#t.save()
 	transaction.delete()
@@ -362,26 +388,28 @@ def relist_post(request, transaction_id):
 
 @login_required(login_url='login_user')
 def complete_transaction(request, transaction_id):
-    user = get_object_or_404(User, pk=request.session['user_id'])
-    transaction = get_object_or_404(Transaction, pk=transaction_id)
-    post = get_object_or_404(Post, pk=transaction.post.id)
-    sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
-    buyerstuff = get_object_or_404(UserModel, user=transaction.buyer) 
-    if user.pk == transaction.seller.pk and transaction.sellerconfirmed == False:
-        transaction.sellerconfirmed = True
-        buyerstuff.updateRating(int(request.POST['rating']))
-        buyerstuff.save()
-    if user.pk == transaction.buyer.pk and transaction.buyerpaid == False:
-        transaction.buyerpaid = True
-        sellerstuff.updateRating(int(request.POST['rating']))
-        sellerstuff.save()
+	user = get_object_or_404(User, pk=request.session['user_id'])
+	transaction = get_object_or_404(Transaction, pk=transaction_id)
+	post = get_object_or_404(Post, pk=transaction.post.id)
+	sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
+	buyerstuff = get_object_or_404(UserModel, user=transaction.buyer) 
+	if user.pk == transaction.seller.pk and transaction.sellerconfirmed == False:
+	    transaction.sellerconfirmed = True
+	    transaction.buyer_read = False
+	    buyerstuff.updateRating(int(request.POST['rating']))
+	    buyerstuff.save()
+	if user.pk == transaction.buyer.pk and transaction.buyerpaid == False:
+	    transaction.buyerpaid = True
+	    transaction.seller_read = False
+	    sellerstuff.updateRating(int(request.POST['rating']))
+	    sellerstuff.save()
 
-    transaction.save() 
-    if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
+	transaction.save() 
+	if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
 		#c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
 		#c.save()  
 		transaction.completed = True
 		post.delete()
 		#transaction.post = NULL
-    return HttpResponseRedirect(reverse('transactions'))
+	return HttpResponseRedirect(reverse('transactions'))
 

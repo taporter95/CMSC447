@@ -24,6 +24,8 @@ class Transaction(models.Model):
 	notes = models.CharField(max_length=200)
 	status = models.CharField(max_length=20)
 	completed = models.BooleanField(default=False)
+	seller_read = models.BooleanField(default=False)
+	buyer_read = models.BooleanField(default=False)
 	def __str__(self):
 		return "Seller: " + str(self.seller) + \
             "\Payment Method: " + str(self.payment_type) + \
