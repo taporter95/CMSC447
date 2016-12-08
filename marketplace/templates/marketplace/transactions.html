@@ -8,20 +8,32 @@
       <p style="text-align: center;">There are no posts</p>
     {% endif %}   
   		{% for transaction in purchased %}
+        {% if transaction.buyer_canceled == False %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span style="float:right;">
-                    <a href="{% url 'view_transaction' transaction.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                  {% if transaction.status == "canceled" %}
+                    <a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-danger btn-xs">Dismiss</button></a>
+                  {% else %}
+                  <a href="{% url 'view_transaction' transaction.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                  {% endif %}
                 </span>
                 <h3 class="panel-title">{{ transaction.post.subject }} </h3>
                 
             </div>
             <div class="panel-body">
               {% if transaction.buyer_read == False %} <p style="color: red"> - Unread</p> {% endif %}
-              {% if transaction.sellerconfirmed == True %} <p> - The seller has confirmed this transaction</p> {% endif %}
-              {% if transaction.buyerpaid == True %} <p> - You have confirmed this transaction, waiting on seller</p> {% endif %}
+              {% if transaction.sellerconfirmed == True and transaction.status != "canceled" %} <p> - The seller has confirmed this transaction</p> {% endif %}
+              {% if transaction.buyerpaid == True and transaction.status != "canceled" %} <p> - You have confirmed this transaction, waiting on seller</p> {% endif %}
+              {% if transaction.status == "canceled" and transaction.buyer_read == False %}
+              <p>The seller has re-listed this post</p>
+              {% endif %}
+              {% if transaction.status == "canceled" and transaction.seller_read == False %}
+              <p>The buyer has canceled the transaction</p>
+              {% endif %}
             </div>
         </div>
+        {% endif %}
       {% endfor %}
       <!--
       {% if purchased %}
@@ -58,19 +70,31 @@
       <p style="text-align: center;">There are no posts</p>
     {% endif %}   
       {% for transaction in sold %}
+        {% if transaction.seller_relisted == False %}
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span style="float:right;">
-                    <a href="{% url 'view_transaction' transaction.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                  {% if transaction.status == "canceled" %}
+                  <a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-danger btn-xs">Dismiss</button></a>
+                  {% else %}
+                  <a href="{% url 'view_transaction' transaction.id %}"><button class="btn btn-primary btn-xs">View</button></a>
+                  {% endif %}
                 </span>
                 <h3 class="panel-title">{{ transaction.post.subject }}</h3>
             </div>
             <div class="panel-body">
               {% if transaction.seller_read == False %} <p style="color: red"> - Unread</p> {% endif %}
-              {% if transaction.buyerpaid == True %} <p> - The buyer has confirmed this transaction</p> {% endif %}
-              {% if transaction.sellerconfirmed == True %} <p> - You have confirmed this transaction, waiting on buyer</p> {% endif %}
+              {% if transaction.buyerpaid == True and transaction.status != "canceled"%} <p> - The buyer has confirmed this transaction</p> {% endif %}
+              {% if transaction.sellerconfirmed == True and transaction.status != "canceled"%} <p> - You have confirmed this transaction, waiting on buyer</p> {% endif %}
+              {% if transaction.status == "canceled" and transaction.buyer_read == False %}
+              <p>The seller has re-listed this post</p>
+              {% endif %}
+              {% if transaction.status == "canceled" and transaction.seller_read == False %}
+              <p>The buyer has canceled the transaction</p>
+              {% endif %}
             </div>
         </div>
+        {% endif %}
       {% endfor %}
       <!--
       {% if posts %}

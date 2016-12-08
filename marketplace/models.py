@@ -13,6 +13,7 @@ class Post(models.Model):
     barter_type = models.CharField(max_length=20)
     creation_date = models.DateTimeField(db_index=True)
     status = models.CharField(max_length=20)
+    hourly = models.BooleanField(default=False)
 
 class Transaction(models.Model):
 	seller = models.ForeignKey(User, related_name='seller')
@@ -26,6 +27,8 @@ class Transaction(models.Model):
 	completed = models.BooleanField(default=False)
 	seller_read = models.BooleanField(default=False)
 	buyer_read = models.BooleanField(default=False)
+	seller_relisted = models.BooleanField(default=False)
+	buyer_canceled = models.BooleanField(default=False)
 	def __str__(self):
 		return "Seller: " + str(self.seller) + \
             "\Payment Method: " + str(self.payment_type) + \

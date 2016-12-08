@@ -18,7 +18,7 @@
                     {% endif %}
                 </span>
 
-                <h3 class="panel-title">{{ post.subject }} - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </h3>
+                <h3 class="panel-title">{{ post.subject }} - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} {% if post.hourly == True and post.cost > 0 %} Per Hour {% endif %}</h3>
             </div>
             <div class="panel-body">
               <div class="media">
@@ -172,8 +172,11 @@
                       <label for="description">Description</label>
                       <textarea class="form-control" rows="3" id="description" name="description"></textarea>
                       </br>
-                      <label for="cost">Hourly Rate</label>
+                      <label for="cost">Price</label>
                       <input class="form-control" type="text" id="cost" name="cost" value="0">
+                      <label for="hourly">Hourly Rate</label>
+                      <input id="hourly" type="checkbox" name="hourly">
+                      </br>
                       </br>
                       <label for="barter">Accept goods/services</label>
                       <select class="form-control" id="barter" name="barter">

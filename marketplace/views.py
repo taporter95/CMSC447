@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # , (REDIRECT_FIELD_NAME, logout as auth_logout)
 from django.contrib import messages
 from .models import Post, Transaction, UserModel
+from itertools import chain
 import datetime
 import calendar
 import random
@@ -120,7 +121,7 @@ def home(request):
 		# and prompts for password
 		logout(request)
 		HttpResponseRedirect('/login')
-	posts = Post.objects.filter(status="active")
+	posts = Post.objects.filter(status="active").order_by('-creation_date')
 
 	post_paginator = Paginator(posts, 5)
 
@@ -167,30 +168,29 @@ def search_results(request):
 		limit = float(100000000)
 
 	try:
-
 		if request.POST['free']:
 			try:
 				if filter_type == "both":
-					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, status="active")
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, status="active").order_by('-creation_date')
 				else:
-					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type, status="active")
+					posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost=0, post_type=filter_type, status="active").order_by('-creation_date')
 			except:
 				if filter_type == "both":
-					posts = Post.objects.all().filter(cost=0, status="active")
+					posts = Post.objects.all().filter(cost=0, status="active").order_by('-creation_date')
 				else:
-					posts = Post.objects.all().filter(cost=0, post_type=filter_type, status="active")
+					posts = Post.objects.all().filter(cost=0, post_type=filter_type, status="active").order_by('-creation_date')
 	except:
 		try:
 			if filter_type == "both":
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, status="active")
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, status="active").order_by('-creation_date')			
 			else:
-				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type, status="active")
+				posts = Post.objects.filter(subject__contains=request.POST['keyword'], cost__lte=limit, post_type=filter_type, status="active").order_by('-creation_date')
 
 		except:
 			if filter_type == "both":
-				posts = Post.objects.all().filter(cost__lte=limit, status="active")
+				posts = Post.objects.all().filter(cost__lte=limit, status="active").order_by('-creation_date')
 			else:
-				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type, status="active") 
+				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type, status="active").order_by('-creation_date')
 
 
 	post_paginator = Paginator(posts, 5)
@@ -224,7 +224,7 @@ def profile(request, user_id):
 	except:
 	    return HttpResponse("<html>Shouldnt hit here database needs to be redone.</html>")
 
-	posts = Post.objects.filter(user=user, status="active")
+	posts = Post.objects.filter(user=user, status="active").order_by('-creation_date')
 
 	post_paginator = Paginator(posts, 5)
 	page = request.GET.get('page')
@@ -288,6 +288,12 @@ def create_post(request):
 	    new_post.image = request.FILES['image']
 	except:
 	    pass
+	
+	try:
+		if request.POST['hourly'] == "on":
+			new_post.hourly = True
+	except:
+		pass
 
 	new_post.post_type = request.POST['type']
 	new_post.barter_type = request.POST['barter']
@@ -351,8 +357,12 @@ def buy(request, post_id):
 def transactions(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	unread = get_unread(user)
-	purchased = Transaction.objects.filter(buyer=user, completed=False)
-	sold = Transaction.objects.filter(seller=user, completed=False) 
+	purchased_active = Transaction.objects.filter(buyer=user, completed=False, status="active")
+	purchased_canceled = Transaction.objects.filter(buyer=user, completed=False, status="canceled")
+	purchased = list(chain(purchased_active, purchased_canceled))
+	sold_active = Transaction.objects.filter(seller=user, completed=False, status="active") 
+	sold_canceled = Transaction.objects.filter(seller=user, completed=False, status="canceled") 
+	sold = list(chain(sold_active, sold_canceled))
 	context = {'purchased': purchased, 'sold': sold, 'unread': unread} 
 	return render(request, 'marketplace/transactions.html', context)
 
@@ -374,16 +384,30 @@ def view_transaction(request, transaction_id):
 
 @login_required(login_url='login_user')
 def relist_post(request, transaction_id):
+	user = get_object_or_404(User, pk=request.session['user_id'])
+
 	try:
 		transaction = get_object_or_404(Transaction, pk=transaction_id)
 	except:
 		return HttpResponseRedirect(reverse('home'))
 
+	if user == transaction.seller:
+		transaction.buyer_read = False
+		transaction.sellerconfirmed = True
+		transaction.seller_relisted = True
+		transaction.save()
+	else:
+		transaction.seller_read = False
+		transaction.buyerpaid = True
+		transaction.buyer_canceled = True
+		transaction.save()
+
 	transaction.post.status = "active"
 	transaction.post.save()
 	#t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
 	#t.save()
-	transaction.delete()
+	transaction.status = "canceled"
+	transaction.save()
 	return HttpResponseRedirect(reverse('transactions'))
 
 @login_required(login_url='login_user')
@@ -394,22 +418,35 @@ def complete_transaction(request, transaction_id):
 	sellerstuff = get_object_or_404(UserModel, user=transaction.seller)
 	buyerstuff = get_object_or_404(UserModel, user=transaction.buyer) 
 	if user.pk == transaction.seller.pk and transaction.sellerconfirmed == False:
-	    transaction.sellerconfirmed = True
-	    transaction.buyer_read = False
-	    buyerstuff.updateRating(int(request.POST['rating']))
-	    buyerstuff.save()
+		transaction.sellerconfirmed = True
+		transaction.buyer_read = False
+		try:
+			buyerstuff.updateRating(int(request.POST['rating']))
+			buyerstuff.save()
+		except:
+			pass
+
 	if user.pk == transaction.buyer.pk and transaction.buyerpaid == False:
-	    transaction.buyerpaid = True
-	    transaction.seller_read = False
-	    sellerstuff.updateRating(int(request.POST['rating']))
-	    sellerstuff.save()
+		transaction.buyerpaid = True
+		transaction.seller_read = False
+		try:
+			sellerstuff.updateRating(int(request.POST['rating']))
+			sellerstuff.save()
+		except:
+			pass
 
 	transaction.save() 
 	if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
 		#c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
 		#c.save()  
 		transaction.completed = True
-		post.delete()
+		if transaction.buyer_canceled == True or transaction.seller_relisted == True:
+			post.status = "active"
+		else:
+			post.status = "inactive"
+
+		transaction.save()
+		post.save()
 		#transaction.post = NULL
 	return HttpResponseRedirect(reverse('transactions'))
 

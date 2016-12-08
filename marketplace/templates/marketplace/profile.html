@@ -91,7 +91,7 @@
               {% endif %}
           </span>
 
-          <h3 class="panel-title"><span>{{ post.subject }}</span> - ${{ post.cost }}</h3>
+          <h3 class="panel-title"><span>{{ post.subject }}</span> - {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} {% if post.hourly == True and post.cost > 0 %} Per Hour {% endif %}</h3>
       </div>
       <div class="panel-body">
         <div class="media">

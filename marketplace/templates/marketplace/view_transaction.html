@@ -33,6 +33,8 @@
 	{% endif %}
   {% if user == transaction.seller %}
   <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-primary">Re-list Post</button></a>
+  {% else %}
+  <a href="{% url 'relist_post' transaction.id %}"><button class="btn btn-default">Cancel Transaction</button></a>
   {% endif %}
   <!--
 	<a href="{% url 'complete_transaction' transaction.id %}"><button class="btn btn-primary">Confirm Exchange</button></a>-->
