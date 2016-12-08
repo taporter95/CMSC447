@@ -12,7 +12,7 @@
   </br>
   <p> Cost: {% if post.cost == 0 %} Free {% else %} ${{ post.cost }} {% endif %} </p>
   </br>
-  <p> Payment type: {{ post.barter_type }} </p>
+  <p> Payment type: {{ transaction.payment_type }} </p>
   </br>
   {% if user == transaction.buyer %}
   <p> Seller: <a href="{% url 'profile' transaction.seller.id %}">{{ transaction.seller.first_name }} {{ transaction.seller.last_name }}</a></p>
@@ -26,6 +26,8 @@
   <p> Buyer email: {{transaction.buyer.email}} </p>
   </br>
   {% endif %}
+  <p> Notes: {{transaction.notes}}</p>
+  </br>
 	{% if user == transaction.buyer and not transaction.buyerpaid  or user == transaction.seller and not transaction.sellerconfirmed %}
   <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Confirm exchange</button>
 	{% else %}

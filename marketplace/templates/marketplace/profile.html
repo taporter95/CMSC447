@@ -88,6 +88,8 @@
               <a href="{% url 'view_post' post.id %}"><button class="btn btn-primary btn-xs">View</button></a>
               {% if user == actual %}
               <a href="{% url 'delete_post' post.id %}"><button class="btn btn-danger btn-xs">Delete</button></a>
+              {% else %}
+              <a href="{% url 'checkout' post.id %}"><button class="btn btn-primary btn-xs">Buy</button></a>
               {% endif %}
           </span>
 

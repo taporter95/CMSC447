@@ -34,11 +34,11 @@
 		<input type="radio" name="payment" value="Cash on delivery" checked> Cash on Delivery
 		</br>
     {% if post.barter_type == "goods" or post.barter_type == "both" %}
-		  <input type="radio" name="payment" value="goods"> Barter a good
+		  <input type="radio" name="payment" value="barter good"> Barter a good
     {% endif %}
 		</br>
     {% if post.barter_type == "services" or post.barter_type == "both" %}
-		  <input type="radio" name="payment" value="services"> Barter a service
+		  <input type="radio" name="payment" value="barter service"> Barter a service
     {% endif %}
 	  </br>
 	  <label for="notes">Notes</label>
