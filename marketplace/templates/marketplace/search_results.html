@@ -7,6 +7,7 @@
       <p style="text-align: center;">There are no posts</p>
     {% endif %}   
   		{% for post in post_page %}
+      <!-- show search results -->
         <div class="panel panel-default">
             <div class="panel-heading">
                 <span style="float:right;">
@@ -35,6 +36,7 @@
         </div>
       {% endfor %}
       {% if posts %}
+      <!--pagination-->
       <div style="text-align: center;">
         <div class="pagination" style="margin: auto;">
           <span class="step-links">

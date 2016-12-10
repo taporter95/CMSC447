@@ -1,6 +1,7 @@
 {% extends "base2.html" %}
 
 {% block content %}
+<!-- edit profile form -->
 <div class="col-md-3 well">
   <form hidden id="post_form" action="{% url 'update_profile' %}" method="post">
     {% csrf_token %}
@@ -31,7 +32,7 @@
     <input class="btn btn-primary" id="submit_button"  type="submit" value="Submit"/>
     <input class="btn btn-default" id="cancel_button" type="reset" value="Cancel">
   </form>
-
+  <!-- show profile info -->
   <div id="user_info" itemscope itemtype="http://schema.org/Person">
     <h3 id="subject"> Profile </h3>
     </br>
@@ -82,6 +83,7 @@
     <p style="text-align: center;">Your posts will show up here</p>
   {% endif %}
   {% for post in post_page %}
+  <!--show posts made by this user-->
   <div class="panel panel-default">
       <div class="panel-heading">
           <span style="float:right;">
@@ -112,6 +114,7 @@
     </div>
   {% endfor %}
   {% if posts %}
+    <!--pagination-->
     <div style="text-align: center;">
       <div class="pagination" style="margin: auto;">
         <span class="step-links">
@@ -136,7 +139,7 @@
   {% endif %}
   </div>
 </div> 
-
+<!-- modal for deleting account-->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">

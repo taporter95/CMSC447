@@ -40,6 +40,7 @@
   {% endif %}
 </div>
 <div hidden id="edit_form" class="col-md-6 well">
+  <!-- edit post form -->
   <form id="post_form" action="{% url 'update_post' post.id%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     </br>

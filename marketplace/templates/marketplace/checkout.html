@@ -2,6 +2,7 @@
 
 {% block content %}
 
+<!--Item info-->
 <div class="col-md-6 well" itemscope itemtype="http://schema.org/Product">
   <a href="{% url 'view_post' post.id %}"><span class="glyphicon glyphicon-chevron-left"></span> Back</a>
   <h3 itemprop="name">{{ post.subject }}</h3>
@@ -26,6 +27,8 @@
       <p> Cost: {% if post.cost == 0 %} <span itemprop="price" content="0">Free</span> {% else %} $<span itemprop="price">{{ post.cost }}</span> {% endif %} </p>
     </div>
 	</br>
+
+  <!--Checkout form-->
 	<form id="post_form" action="{% url 'buy' post.id %}" method="post">
 		{% csrf_token %}
   	</br>

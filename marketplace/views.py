@@ -17,13 +17,15 @@ import random
 import re
 
 
-	# Create your views here.
+
+#get the number of transaction objects marked as unread
 def get_unread(user):
 
 	set_1 = Transaction.objects.filter(buyer=user, completed=False, buyer_read=False).count()
 	set_2 = Transaction.objects.filter(seller=user, completed=False, seller_read=False).count()
 	
 	return set_1 + set_2
+
 
 @login_required(login_url='login_user')
 def redirect(request):
@@ -48,7 +50,7 @@ def authenticate_user(request):
 	if user is not None:
 	    # Don't let user log in if they're banned
 	    userstuff = UserModel.objects.get(user=user)
-	    if userstuff is None:
+	    if userstuff is None: #if user does not exist
 	        return render(request, 'registration/login.html')
 	    elif userstuff.banned:
 	        messages.add_message(request, messages.ERROR, 'You have been banned from this site.')
@@ -62,29 +64,31 @@ def authenticate_user(request):
 	    return render(request, 'registration/login.html')
 
 
-	# TODO The page doesnt fit the screen now with the extra umbcid field need to make it bigger or scrollable
 def new_user(request):
 	return render(request, 'registration/new_user.html')
 
 
 def create_user(request):
+	#match regex for email
 	if re.match(r'^[\w]+@umbc\.edu$', request.POST['email']):
 	    pass
 	else:
 	    messages.add_message(request, messages.ERROR, 'You must have a valid UMBC email')
 	    return HttpResponseRedirect(reverse('new_user'))
 	   
-	    
+	#match regex for ID 
 	if re.match('[A-Z][A-Z][0-9][0-9][0-9][0-9][0-9]', request.POST['umbcid'].upper()):
 	    pass
 	else:
 	    messages.add_message(request, messages.ERROR, 'You must have a valid UMBC Id')
 	    return HttpResponseRedirect(reverse('new_user'))
 
+	#check password
 	if request.POST['password'] != request.POST['repassword']:
 	    messages.add_message(request, messages.ERROR, 'Passwords do not match')
 	    return HttpResponseRedirect(reverse('new_user'))
 
+	#create new user if it does not exist
 	try:
 	    User.objects.get(username=request.POST['email'])
 	except ObjectDoesNotExist:
@@ -121,8 +125,9 @@ def home(request):
 		# and prompts for password
 		logout(request)
 		HttpResponseRedirect('/login')
+	#get posts
 	posts = Post.objects.filter(status="active").order_by('-creation_date')
-
+	#set up pagination
 	post_paginator = Paginator(posts, 5)
 
 	page = request.GET.get('page')
@@ -144,6 +149,7 @@ def search_results(request):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	unread = get_unread(user)
 
+	#Does user want to see goods, services, or both
 	try:
 	    good = request.POST['good']
 	except:
@@ -167,6 +173,7 @@ def search_results(request):
 	except:
 		limit = float(100000000)
 
+	#filter based on search parameters
 	try:
 		if request.POST['free']:
 			try:
@@ -192,7 +199,7 @@ def search_results(request):
 			else:
 				posts = Post.objects.all().filter(cost__lte=limit, post_type=filter_type, status="active").order_by('-creation_date')
 
-
+	#set up pagination
 	post_paginator = Paginator(posts, 5)
 
 	page = request.GET.get('page')
@@ -214,6 +221,7 @@ def profile(request, user_id):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	actual = user
 
+	#check to see if the current user is viewing their profile or someone else's
 	if current_profile != user:
 	    user = current_profile
 
@@ -245,6 +253,7 @@ def profile(request, user_id):
 
 @login_required(login_url='login_user')
 def update_profile(request):
+	#get user and update fields
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	userstuff = get_object_or_404(UserModel, user=user)
 	user.first_name = request.POST.get('first')
@@ -348,6 +357,7 @@ def buy(request, post_id):
 	post.status = "pending"
 	buyer = get_object_or_404(User, pk=request.session['user_id'])
 	seller = post.user
+	#create a new transaction object to store information
 	new_transaction = Transaction(buyer=buyer, seller=seller, post=post, payment_type = request.POST['payment'], notes=request.POST['notes'], status="active")
 	new_transaction.save()
 	post.save() 
@@ -359,9 +369,12 @@ def transactions(request):
 	unread = get_unread(user)
 	purchased_active = Transaction.objects.filter(buyer=user, completed=False, status="active")
 	purchased_canceled = Transaction.objects.filter(buyer=user, completed=False, status="canceled")
+	#merge the lists of active and canceled transactions
 	purchased = list(chain(purchased_active, purchased_canceled))
+	
 	sold_active = Transaction.objects.filter(seller=user, completed=False, status="active") 
 	sold_canceled = Transaction.objects.filter(seller=user, completed=False, status="canceled") 
+	#merge the lists of active and canceled transactions
 	sold = list(chain(sold_active, sold_canceled))
 	context = {'purchased': purchased, 'sold': sold, 'unread': unread} 
 	return render(request, 'marketplace/transactions.html', context)
@@ -370,7 +383,7 @@ def transactions(request):
 def view_transaction(request, transaction_id):
 	user = get_object_or_404(User, pk=request.session['user_id'])
 	transaction = get_object_or_404(Transaction, pk=transaction_id)
-	
+	#mark that the user has viewed this transaction
 	if user == transaction.seller:
 		transaction.seller_read = True
 	else:
@@ -391,6 +404,7 @@ def relist_post(request, transaction_id):
 	except:
 		return HttpResponseRedirect(reverse('home'))
 
+	#set flags for notifications
 	if user == transaction.seller:
 		transaction.buyer_read = False
 		transaction.sellerconfirmed = True
@@ -404,8 +418,7 @@ def relist_post(request, transaction_id):
 
 	transaction.post.status = "active"
 	transaction.post.save()
-	#t = Transaction(seller=transaction.seller, buyer=transaction.buyer, post=transaction.post, payment_type=transaction.payment_type, buyerpaid=False, sellerconfirmed=False, status="active")
-	#t.save()
+	
 	transaction.status = "canceled"
 	transaction.save()
 	return HttpResponseRedirect(reverse('transactions'))
@@ -436,9 +449,7 @@ def complete_transaction(request, transaction_id):
 			pass
 
 	transaction.save() 
-	if transaction.sellerconfirmed == True and transaction.buyerpaid == True:
-		#c = CompleteTransaction(seller=transaction.seller, buyer=transaction.buyer, postlabel=transaction.post.subject, payment_type=transaction.payment_type, buyerpaid=transaction.buyerpaid, sellerconfirmed=transaction.sellerconfirmed, notes=transaction.notes, status="not active") 
-		#c.save()  
+	if transaction.sellerconfirmed == True and transaction.buyerpaid == True: 
 		transaction.completed = True
 		if transaction.buyer_canceled == True or transaction.seller_relisted == True:
 			post.status = "active"
@@ -447,6 +458,5 @@ def complete_transaction(request, transaction_id):
 
 		transaction.save()
 		post.save()
-		#transaction.post = NULL
 	return HttpResponseRedirect(reverse('transactions'))
 

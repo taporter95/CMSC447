@@ -35,31 +35,6 @@
         </div>
         {% endif %}
       {% endfor %}
-      <!--
-      {% if purchased %}
-      <div style="text-align: center;">
-        <div class="pagination" style="margin: auto;">
-          <span class="step-links">
-            {% if post_page.number != 1 %}
-              <a href="?page=1"><button class="btn btn-primary btn-xs">First</button></a>
-            {% endif %}
-            {% if post_page.has_previous %}
-              <a href="?page={{ post_page.previous_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></button></a>
-            {% endif %}
-            <span class="current">
-              page {{ post_page.number }} of {{ post_page.paginator.num_pages }}
-            </span>
-            {% if post_page.has_next %}
-              <a href="?page={{ post_page.next_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button></a>
-            {% endif %}
-            {% if post_page.number != post_page.paginator.num_pages %}
-              <a href="?page={{ post_page.paginator.num_pages }}"><button class="btn btn-primary btn-xs">Last</button></a>
-            {% endif %}
-          </span>
-        </div>
-      </div>
-      {% endif %}
-      -->
     </div>
 	</div>
   </div> 
@@ -96,31 +71,6 @@
         </div>
         {% endif %}
       {% endfor %}
-      <!--
-      {% if posts %}
-      <div style="text-align: center;">
-        <div class="pagination" style="margin: auto;">
-          <span class="step-links">
-            {% if post_page.number != 1 %}
-              <a href="?page=1"><button class="btn btn-primary btn-xs">First</button></a>
-            {% endif %}
-            {% if post_page.has_previous %}
-              <a href="?page={{ post_page.previous_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span></button></a>
-            {% endif %}
-            <span class="current">
-              page {{ post_page.number }} of {{ post_page.paginator.num_pages }}
-            </span>
-            {% if post_page.has_next %}
-              <a href="?page={{ post_page.next_page_number }}"><button class="btn btn-primary btn-xs"><span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span></button></a>
-            {% endif %}
-            {% if post_page.number != post_page.paginator.num_pages %}
-              <a href="?page={{ post_page.paginator.num_pages }}"><button class="btn btn-primary btn-xs">Last</button></a>
-            {% endif %}
-          </span>
-        </div>
-      </div>
-      {% endif %}
-      -->
     </div>
   </div> 
 
